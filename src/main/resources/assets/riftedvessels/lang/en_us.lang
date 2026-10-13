@@ -1,0 +1,7 @@
+tile.riftedvessels.ship_helm.name=Ship Helm
+
+gui.riftedvessels.ship_helm=Ship Helm
+gui.riftedvessels.ship_helm.assemble=Assemble
+gui.riftedvessels.ship_helm.disassemble=Disassemble
+gui.riftedvessels.ship_helm.align=Align
+gui.riftedvessels.ship_helm.cruise_control=Cruise Control

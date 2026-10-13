@@ -20,7 +20,7 @@ public class RiftedVesselsBlocks {
     private static <T extends Block> T registerBlock(T block, String registryName, boolean hasItem, boolean canBeInCreative) {
         if (canBeInCreative) block.setCreativeTab(RiftedVessels.creativeItemsTab);
         block.setRegistryName(registryName);
-        block.setTranslationKey(registryName);
+        block.setTranslationKey(RiftedVessels.MOD_ID + "." + registryName);
         BLOCKS.add(block);
         if (hasItem) RiftedVesselsItems.registerBlockItem(block, registryName, canBeInCreative);
         return block;

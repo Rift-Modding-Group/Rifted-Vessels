@@ -25,7 +25,7 @@ public class RiftedVesselsItems {
     public static <T extends Item> T registerItem(T item, String registryName, boolean canBeInCreative) {
         if (canBeInCreative) item.setCreativeTab(RiftedVessels.creativeItemsTab);
         if (item.getRegistryName() == null) item.setRegistryName(registryName);
-        item.setTranslationKey(registryName);
+        item.setTranslationKey(RiftedVessels.MOD_ID + "." + registryName);
         ITEMS.add(item);
         return item;
     }

@@ -1,9 +1,11 @@
 package anightdazingzoroark.riftedvessels.client;
 
+import anightdazingzoroark.riftedvessels.RiftedVessels;
 import anightdazingzoroark.riftedvessels.client.renderer.block.ShipHelmBlockRenderer;
 import anightdazingzoroark.riftedvessels.client.renderer.item.ShipHelmItemRenderer;
 import anightdazingzoroark.riftedvessels.server.ServerProxy;
 import anightdazingzoroark.riftedvessels.server.blocks.RiftedVesselsBlocks;
+import anightdazingzoroark.riftedvessels.server.gui.RiftedVesselsGuiHandler;
 import anightdazingzoroark.riftedvessels.server.items.RiftedVesselsItems;
 import anightdazingzoroark.riftlib.renderers.geo.GeoBlockRenderer;
 import net.minecraft.client.Minecraft;
@@ -12,6 +14,7 @@ import net.minecraft.item.Item;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 
 public class ClientProxy extends ServerProxy {
     @Override
@@ -29,12 +32,15 @@ public class ClientProxy extends ServerProxy {
     public void init(FMLInitializationEvent event) {
         super.init(event);
 
-        //register item models
+        //---register item models---
         for (Item item : RiftedVesselsItems.ITEMS) {
             final String resName = item.getRegistryName().toString();
             final ModelResourceLocation res = new ModelResourceLocation(resName, "inventory");
             Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, 0, res);
         }
+
+        //---GUIs---
+        NetworkRegistry.INSTANCE.registerGuiHandler(RiftedVessels.INSTANCE, new RiftedVesselsGuiHandler());
     }
 
     @Override

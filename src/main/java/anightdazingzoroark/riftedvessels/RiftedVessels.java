@@ -22,6 +22,10 @@ public class RiftedVessels {
     public static final String MOD_NAME = "Rifted Vessels";
     public static final String VERSION = "1.0.0";
     public static final Logger LOGGER = LogManager.getLogger(Reference.MOD_NAME);
+
+    @Mod.Instance(MOD_ID)
+    public static RiftedVessels INSTANCE;
+
     public static final CreativeTabs creativeItemsTab = new CreativeTabs(MOD_ID) {
         @Override
         @SideOnly(Side.CLIENT)
@@ -31,7 +35,7 @@ public class RiftedVessels {
 
         @Override
         public String getTranslationKey() {
-            return "itemGroup.rifted_vessels";
+            return RiftedVessels.MOD_NAME;
         }
     };
 
