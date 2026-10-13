@@ -3,6 +3,7 @@
 !src/**/build/
 run/
 out/
+AGENTS.md
 
 # Ignore Gradle GUI config
 gradle-app.setting
