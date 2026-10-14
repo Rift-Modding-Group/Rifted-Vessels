@@ -79,21 +79,31 @@ public class ShipHelmBlock extends BlockHorizontal implements ITileEntityProvide
         }
         //attempt to start controlling ship
         else {
+            //if interacting player is controller, stop controlling ship
             if (shipHelm.isControlledBy(serverPlayer)) {
                 shipHelm.stopControlling();
             }
+            //warning for when not assembled
             else if (!shipHelm.isAssembled() || !RiftedValkyriumAPI.isPosInShipyard(worldIn, pos)) {
                 playerIn.sendStatusMessage(new TextComponentTranslation("warning.riftedvessels.not_assembled"), false);
             }
+            //warning for when someone else is controlling
             else if (shipHelm.isBeingControlled()) {
                 playerIn.sendStatusMessage(new TextComponentTranslation("warning.riftedvessels.helm_occupied"), false);
             }
+            //warning for when too far from helm
             else if (!shipHelm.isPlayerStandingOnShip(serverPlayer)) {
                 playerIn.sendStatusMessage(new TextComponentTranslation("warning.riftedvessels.not_on_ship"), false);
             }
+            //warning for when too far from helm
             else if (!shipHelm.isPlayerWithinControlDistance(serverPlayer)) {
                 playerIn.sendStatusMessage(new TextComponentTranslation("warning.riftedvessels.too_far_from_helm"), false);
             }
+            //warning for when ship is aligning
+            else if (shipHelm.isAssembled() && shipHelm.getAligning()) {
+                playerIn.sendStatusMessage(new TextComponentTranslation("warning.riftedvessels.ship_aligning"), false);
+            }
+            //finally start controlling
             else {
                 playerIn.sendStatusMessage(new TextComponentTranslation("warning.riftedvessels.controlling"), true);
                 shipHelm.startControlling(serverPlayer);

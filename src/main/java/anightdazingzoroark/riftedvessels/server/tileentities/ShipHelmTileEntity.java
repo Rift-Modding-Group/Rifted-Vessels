@@ -41,7 +41,8 @@ public class ShipHelmTileEntity extends RiftTileEntity implements ITickable, Shi
     private static final double RELEASED_TURN_VELOCITY_STOP_THRESHOLD = 0.001D;
     private static final Vec3d WORLD_UP = new Vec3d(0D, 1D, 0D);
     private static final double MIN_STABILIZATION_ERROR = 1.0E-6D;
-    private static final double STABILIZATION_RESPONSE = 45D;
+    //increase this value to make ship more stable
+    private static final double STABILIZATION_RESPONSE = 90D;
     private static final double STABILIZATION_DAMPING_RATIO = 1D;
     private static final double MAXIMUM_STABILIZATION_TORQUE = 15_000_000D;
 
@@ -63,6 +64,7 @@ public class ShipHelmTileEntity extends RiftTileEntity implements ITickable, Shi
     private volatile double maximumSpeed = RiftedVesselsConfig.shipHelmMaximumSpeed;
     private volatile double turnAcceleration = RiftedVesselsConfig.shipHelmTurnAcceleration;
     private volatile double maximumTurnSpeed = RiftedVesselsConfig.shipHelmMaximumTurnSpeed;
+    private volatile boolean cruiseControlling;
     private int lastPhysicsForwardInput;
     private int lastPhysicsTurnInput;
     private boolean slowingForwardMotion;
@@ -85,12 +87,12 @@ public class ShipHelmTileEntity extends RiftTileEntity implements ITickable, Shi
 
         //set assembled
         if (ship.isEmpty() && this.isAssembled()) {
-            IShipData shipData = RiftedValkyriumAPI.createNewShip((WorldServer) this.world, this.pos, RiftedVesselsUtil.getBlockBlacklist());
-            shipData.setPhysicsEnabled(true);
+            RiftedValkyriumAPI.createNewShip((WorldServer) this.world, this.pos, RiftedVesselsUtil.getBlockBlacklist(), true);
         }
 
         //set induced ship, aligning to grid, and cruise control
         if (ship.isPresent() && this.isAssembled()) {
+            this.updateMovementSettings();
             this.setInducedShip(ship.get());
             ship.get().setShipAligningToGrid(this.getAligning());
             this.updateControllingPlayer(ship.get());
@@ -108,7 +110,7 @@ public class ShipHelmTileEntity extends RiftTileEntity implements ITickable, Shi
     //---ship controls---
     //start controlling the ship
     public void startControlling(@NotNull EntityPlayerMP player) {
-        if (this.world.isRemote || !this.isAssembled()) return;
+        if (this.world.isRemote || !this.isAssembled() || this.getAligning()) return;
 
         UUID playerUuid = player.getUniqueID();
         if (playerUuid.equals(this.controllingPlayerUuid)) {
@@ -123,20 +125,11 @@ public class ShipHelmTileEntity extends RiftTileEntity implements ITickable, Shi
         Optional<IPhysicsEntity> ship = RiftedValkyriumAPI.getPhysoManagingBlock(this.world, this.pos);
         if (ship.isEmpty() || !this.isPlayerStandingOnShip(player) || !this.isPlayerWithinControlDistance(player, ship.get())) return;
 
-        IBlockState state = this.world.getBlockState(this.pos);
-        if (!(state.getBlock() instanceof ShipHelmBlock)) return;
-        EnumFacing facing = state.getValue(ShipHelmBlock.FACING);
-
         UUID controlSessionUuid = UUID.randomUUID();
         this.controllingPlayerUuid = playerUuid;
         this.controlSessionUuid = controlSessionUuid;
         setControlSession(player, controlSessionUuid);
-        this.forwardX = -facing.getXOffset();
-        this.forwardZ = -facing.getZOffset();
-        this.acceleration = RiftedVesselsConfig.shipHelmAcceleration;
-        this.maximumSpeed = RiftedVesselsConfig.shipHelmMaximumSpeed;
-        this.turnAcceleration = RiftedVesselsConfig.shipHelmTurnAcceleration;
-        this.maximumTurnSpeed = RiftedVesselsConfig.shipHelmMaximumTurnSpeed;
+        this.updateMovementSettings();
         this.setInducedShip(ship.get());
 
         Vec3d globalForward = ship.get().rotateVector(
@@ -185,11 +178,21 @@ public class ShipHelmTileEntity extends RiftTileEntity implements ITickable, Shi
         this.forwardInput = Math.clamp(controlData.getInteger(CONTROL_FORWARD_KEY), -1, 1);
         this.turnInput = Math.clamp(controlData.getInteger(CONTROL_TURN_KEY), -1, 1);
         this.setTurning(this.turnInput);
+        if (this.inducedShip != ship) this.setInducedShip(ship);
+    }
+
+    private void updateMovementSettings() {
+        IBlockState state = this.world.getBlockState(this.pos);
+        if (state.getBlock() instanceof ShipHelmBlock) {
+            EnumFacing facing = state.getValue(ShipHelmBlock.FACING);
+            this.forwardX = -facing.getXOffset();
+            this.forwardZ = -facing.getZOffset();
+        }
         this.acceleration = RiftedVesselsConfig.shipHelmAcceleration;
         this.maximumSpeed = RiftedVesselsConfig.shipHelmMaximumSpeed;
         this.turnAcceleration = RiftedVesselsConfig.shipHelmTurnAcceleration;
         this.maximumTurnSpeed = RiftedVesselsConfig.shipHelmMaximumTurnSpeed;
-        if (this.inducedShip != ship) this.setInducedShip(ship);
+        this.cruiseControlling = this.getCruiseControlling();
     }
 
     private void setInducedShip(@NotNull IPhysicsEntity ship) {
@@ -263,6 +266,7 @@ public class ShipHelmTileEntity extends RiftTileEntity implements ITickable, Shi
         return helmShipData != null && playerShip.isPresent() && helmShipData.getUuid().equals(playerShip.get().getUuid());
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isPlayerWithinControlDistance(@NotNull EntityPlayerMP player) {
         IPhysicsEntity helmShip = this.inducedShip != null ? this.inducedShip : null;
         return helmShip != null && this.isPlayerWithinControlDistance(player, helmShip);
@@ -291,7 +295,7 @@ public class ShipHelmTileEntity extends RiftTileEntity implements ITickable, Shi
 
         this.applyStabilizingTorque(forces, shipData, mass);
 
-        int forward = this.forwardInput;
+        int forward = this.cruiseControlling ? 1 : this.forwardInput;
         int turn = this.turnInput;
 
         //no forward/backward input means slowing down to smoothen travel
@@ -302,6 +306,7 @@ public class ShipHelmTileEntity extends RiftTileEntity implements ITickable, Shi
         if (turn == 0 && this.lastPhysicsTurnInput != 0) this.slowingTurningMotion = true;
         else if (turn != 0) this.slowingTurningMotion = false;
 
+        //block further forces when there's no more input
         this.lastPhysicsForwardInput = forward;
         this.lastPhysicsTurnInput = turn;
         if (forward == 0 && turn == 0 && !this.slowingForwardMotion && !this.slowingTurningMotion) return;
@@ -309,6 +314,7 @@ public class ShipHelmTileEntity extends RiftTileEntity implements ITickable, Shi
         double configuredAcceleration = this.acceleration;
         double configuredMaximumSpeed = this.maximumSpeed;
 
+        //apply forward/backward motion
         if (this.slowingForwardMotion) {
             this.slowingForwardMotion = this.slowForwardMomentum(forces, shipData, mass);
         }
@@ -316,6 +322,7 @@ public class ShipHelmTileEntity extends RiftTileEntity implements ITickable, Shi
             this.applyForwardForce(forces, shipData, mass, forward, configuredAcceleration, configuredMaximumSpeed);
         }
 
+        //apply left/right rotation
         double configuredTurnAcceleration = this.turnAcceleration;
         double configuredMaximumTurnSpeed = this.maximumTurnSpeed;
         if (this.slowingTurningMotion) {
@@ -340,16 +347,10 @@ public class ShipHelmTileEntity extends RiftTileEntity implements ITickable, Shi
         }
 
         Vector3dc angularVelocity = shipData.getAngularVelocity();
-        Vec3d currentAngularVelocity = new Vec3d(
-                angularVelocity.x(),
-                angularVelocity.y(),
-                angularVelocity.z()
-        );
+        Vec3d currentAngularVelocity = new Vec3d(angularVelocity.x(), angularVelocity.y(), angularVelocity.z());
         Vec3d levelingAngularVelocity = currentAngularVelocity.subtract(WORLD_UP.scale(currentAngularVelocity.dotProduct(WORLD_UP)));
         double stabilizationDamping = 2D * Math.sqrt(STABILIZATION_RESPONSE) * STABILIZATION_DAMPING_RATIO;
-        Vec3d angularVelocityChange = correctionAcceleration.subtract(
-                levelingAngularVelocity.scale(stabilizationDamping)
-        );
+        Vec3d angularVelocityChange = correctionAcceleration.subtract(levelingAngularVelocity.scale(stabilizationDamping));
 
         Vec3d shipAngularVelocityChange = ship.rotateVector(angularVelocityChange, TransformType.GLOBAL_TO_SUBSPACE);
         Vec3d momentsOfInertia = this.getMomentsOfInertia(shipData, mass);
@@ -464,6 +465,7 @@ public class ShipHelmTileEntity extends RiftTileEntity implements ITickable, Shi
     public void setAssembled(boolean value) {
         this.setValue("Assembled", value);
         if (!value) {
+            this.setAligning(false);
             this.setCruiseControlling(false);
             this.stopControlling();
             this.clearInducedShip();
@@ -476,6 +478,7 @@ public class ShipHelmTileEntity extends RiftTileEntity implements ITickable, Shi
 
     public void setAligning(boolean value) {
         this.setValue("Aligning", value);
+        this.setCruiseControlling(false);
     }
 
     public boolean getAligning() {
@@ -483,7 +486,8 @@ public class ShipHelmTileEntity extends RiftTileEntity implements ITickable, Shi
     }
 
     public void setCruiseControlling(boolean value) {
-        this.setValue("CruiseControlling", false);
+        this.cruiseControlling = value;
+        this.setValue("CruiseControlling", value);
     }
 
     public boolean getCruiseControlling() {

@@ -15,8 +15,12 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-
-@Mod(modid = RiftedVessels.MOD_ID, name = RiftedVessels.MOD_NAME, version = RiftedVessels.VERSION)
+@Mod(
+        modid = RiftedVessels.MOD_ID,
+        name = RiftedVessels.MOD_NAME,
+        version = RiftedVessels.VERSION,
+        dependencies = "required-after:riftlib@[2.1.0,);" //+ ";required-after:valkyrienskies@[2.1.0)"
+)
 public class RiftedVessels {
     public static final String MOD_ID = "riftedvessels";
     public static final String MOD_NAME = "Rifted Vessels";

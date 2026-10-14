@@ -3,11 +3,7 @@ package anightdazingzoroark.riftedvessels.server;
 import anightdazingzoroark.riftedvessels.RiftedVessels;
 import anightdazingzoroark.riftedvessels.server.blocks.RiftedVesselsBlocks;
 import anightdazingzoroark.riftedvessels.server.items.RiftedVesselsItems;
-import anightdazingzoroark.riftedvessels.server.message.AlignShipMessage;
-import anightdazingzoroark.riftedvessels.server.message.AssembleShipMessage;
-import anightdazingzoroark.riftedvessels.server.message.ControlShipMessage;
-import anightdazingzoroark.riftedvessels.server.message.OpenShipHelmGuiMessage;
-import anightdazingzoroark.riftedvessels.server.message.ShipControlStateMessage;
+import anightdazingzoroark.riftedvessels.server.message.*;
 import anightdazingzoroark.riftedvessels.server.tileentities.ShipHelmTileEntity;
 import anightdazingzoroark.riftlib.message.RiftLibMessage;
 import anightdazingzoroark.riftlib.message.RiftLibMessageSide;
@@ -18,6 +14,8 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import valkyrienwarfare.api.BlockMass;
+import valkyrienwarfare.api.RiftedValkyriumAPI;
 
 public class ServerProxy {
     public static final RiftLibMessageWrapper<RiftLibMessage, RiftLibMessage> MESSAGE_WRAPPER = new RiftLibMessageWrapper<>(RiftedVessels.MOD_ID);
@@ -32,6 +30,7 @@ public class ServerProxy {
         MESSAGE_WRAPPER.registerMessage(ControlShipMessage.class, RiftLibMessageSide.SERVER);
         MESSAGE_WRAPPER.registerMessage(AssembleShipMessage.class, RiftLibMessageSide.SERVER);
         MESSAGE_WRAPPER.registerMessage(AlignShipMessage.class, RiftLibMessageSide.SERVER);
+        MESSAGE_WRAPPER.registerMessage(CruiseControlShipMessage.class, RiftLibMessageSide.SERVER);
 
         //---events---
         MinecraftForge.EVENT_BUS.register(new RiftedVesselsBlocks());
@@ -44,6 +43,9 @@ public class ServerProxy {
                 ShipHelmTileEntity.class,
                 new ResourceLocation(RiftedVessels.MOD_ID, "ship_helm")
         );
+
+        //---custom block weights---
+        RiftedValkyriumAPI.setBlockMass(RiftedVesselsBlocks.SHIP_HELM, BlockMass.NONE);
     }
 
     public void postInit(FMLPostInitializationEvent event) {}

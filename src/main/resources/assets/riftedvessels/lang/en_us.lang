@@ -9,9 +9,12 @@ gui.riftedvessels.ship_helm.invalid_assembly_block=The Ship Helm is not on top o
 gui.riftedvessels.ship_helm.set_align=Set Align
 gui.riftedvessels.ship_helm.stop_align=Stop Align
 gui.riftedvessels.ship_helm.cruise_control=Cruise Control
+gui.riftedvessels.ship_helm.enable_cruise_control=Enable Cruise Control
+gui.riftedvessels.ship_helm.disable_cruise_control=Disable Cruise Control
 
 warning.riftedvessels.controlling=Controlling ship...
 warning.riftedvessels.not_assembled=Assemble the ship first before controlling!
 warning.riftedvessels.helm_occupied=Someone else is already controlling this ship!
 warning.riftedvessels.not_on_ship=Stand on this ship before controlling it!
 warning.riftedvessels.too_far_from_helm=Move closer to the helm before controlling it!
+warning.riftedvessels.ship_aligning=The ship is aligning, it cannot be controlled!
