@@ -4,11 +4,14 @@ import anightdazingzoroark.riftedvessels.RiftedVessels;
 import anightdazingzoroark.riftedvessels.server.RiftedVesselsUtil;
 import anightdazingzoroark.riftedvessels.server.ServerProxy;
 import anightdazingzoroark.riftedvessels.server.blocks.RiftedVesselsBlocks;
+import anightdazingzoroark.riftedvessels.server.message.AlignShipMessage;
 import anightdazingzoroark.riftedvessels.server.message.AssembleShipMessage;
+import anightdazingzoroark.riftedvessels.server.tileentities.ShipHelmTileEntity;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -80,6 +83,7 @@ public class ShipHelmGui extends GuiScreen {
         this.buttonList.add(cruiseControlButton);
 
         this.updateAssembleButton();
+        this.updateAlignButton();
     }
 
     @Override
@@ -95,6 +99,7 @@ public class ShipHelmGui extends GuiScreen {
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         this.updateAssembleButton();
+        this.updateAlignButton();
         this.drawDefaultBackground();
         int guiTop = (this.height - GUI_HEIGHT) / 2;
         this.drawCenteredString(
@@ -126,7 +131,13 @@ public class ShipHelmGui extends GuiScreen {
                 this.updateAssembleButton();
             }
             case ALIGN_BUTTON_ID -> {
+                TileEntity tileEntity = this.world.getTileEntity(this.shipHelmPos);
+                if (!(tileEntity instanceof ShipHelmTileEntity shipHelm)) return;
 
+                boolean align = !shipHelm.getAligning();
+                shipHelm.setAligning(align);
+                ServerProxy.MESSAGE_WRAPPER.sendToServer(new AlignShipMessage(align, this.shipHelmPos));
+                this.updateAlignButton();
             }
         }
     }
@@ -159,7 +170,12 @@ public class ShipHelmGui extends GuiScreen {
     private void updateAlignButton() {
         if (this.alignButton == null) return;
 
-        boolean assembled = RiftedValkyriumAPI.getShipManagingBlock(this.world, this.shipHelmPos).isPresent();
+        this.alignButton.enabled = RiftedValkyriumAPI.getShipManagingBlock(this.world, this.shipHelmPos).isPresent();
+
+        TileEntity tileEntity = this.world.getTileEntity(this.shipHelmPos);
+        boolean aligning = tileEntity instanceof ShipHelmTileEntity shipHelm && shipHelm.getAligning();
+        String action = aligning ? "stop_align" : "set_align";
+        this.alignButton.displayString = I18n.format("gui.riftedvessels.ship_helm." + action);
     }
 
     @Override
@@ -196,6 +212,7 @@ public class ShipHelmGui extends GuiScreen {
                 this.shipHelmPos = candidate.toImmutable();
                 this.missingHelmTicks = 0;
                 this.updateAssembleButton();
+                this.updateAlignButton();
                 return true;
             }
         }

@@ -10,5 +10,8 @@ gui.riftedvessels.ship_helm.set_align=Alinear
 gui.riftedvessels.ship_helm.stop_align=No alinear
 gui.riftedvessels.ship_helm.cruise_control=Control de crucero
 
+warning.riftedvessels.controlling=Controlando barco...
 warning.riftedvessels.not_assembled=¡Arma primero al barco antes de controlarlo!
 warning.riftedvessels.helm_occupied=¡Alguien más ya está controlando este barco!
+warning.riftedvessels.not_on_ship=¡Párate sobre este barco antes de controlarlo!
+warning.riftedvessels.too_far_from_helm=¡Acércate al timón antes de controlarlo!

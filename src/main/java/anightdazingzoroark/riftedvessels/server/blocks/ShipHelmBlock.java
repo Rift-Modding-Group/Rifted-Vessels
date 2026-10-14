@@ -21,11 +21,13 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import valkyrienwarfare.api.RiftedValkyriumAPI;
 
+@SuppressWarnings("deprecation")
 public class ShipHelmBlock extends BlockHorizontal implements ITileEntityProvider {
-    private static final AxisAlignedBB HELM_AABB = new AxisAlignedBB(0.125D, 0, 0.125D, 0.875D, 1D, 0.875D);
+    private static final AxisAlignedBB HELM_AABB = new AxisAlignedBB(0.125D, 0, 0.125D, 0.875D, 0.875D, 0.875D);
 
     public ShipHelmBlock() {
         super(Material.WOOD);
@@ -35,6 +37,21 @@ public class ShipHelmBlock extends BlockHorizontal implements ITileEntityProvide
     @Override
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
         return HELM_AABB;
+    }
+
+    @Override
+    public float getBlockHardness(@NotNull IBlockState blockState, @NotNull World worldIn, @NotNull BlockPos pos) {
+        if (isAssembled(worldIn, pos)) return -1F;
+        return super.getBlockHardness(blockState, worldIn, pos);
+    }
+
+    @Override
+    public boolean removedByPlayer(
+            @NotNull IBlockState state, @NotNull World worldIn, @NotNull BlockPos pos,
+            @NotNull EntityPlayer player, boolean willHarvest
+    ) {
+        if (isAssembled(worldIn, pos)) return false;
+        return super.removedByPlayer(state, worldIn, pos, player, willHarvest);
     }
 
     @Override
@@ -65,13 +82,20 @@ public class ShipHelmBlock extends BlockHorizontal implements ITileEntityProvide
             if (shipHelm.isControlledBy(serverPlayer)) {
                 shipHelm.stopControlling();
             }
-            else if (!shipHelm.isAssembled() || RiftedValkyriumAPI.getPhysoManagingBlock(worldIn, pos).isEmpty()) {
+            else if (!shipHelm.isAssembled() || !RiftedValkyriumAPI.isPosInShipyard(worldIn, pos)) {
                 playerIn.sendStatusMessage(new TextComponentTranslation("warning.riftedvessels.not_assembled"), false);
             }
             else if (shipHelm.isBeingControlled()) {
                 playerIn.sendStatusMessage(new TextComponentTranslation("warning.riftedvessels.helm_occupied"), false);
             }
+            else if (!shipHelm.isPlayerStandingOnShip(serverPlayer)) {
+                playerIn.sendStatusMessage(new TextComponentTranslation("warning.riftedvessels.not_on_ship"), false);
+            }
+            else if (!shipHelm.isPlayerWithinControlDistance(serverPlayer)) {
+                playerIn.sendStatusMessage(new TextComponentTranslation("warning.riftedvessels.too_far_from_helm"), false);
+            }
             else {
+                playerIn.sendStatusMessage(new TextComponentTranslation("warning.riftedvessels.controlling"), true);
                 shipHelm.startControlling(serverPlayer);
             }
         }
@@ -118,5 +142,10 @@ public class ShipHelmBlock extends BlockHorizontal implements ITileEntityProvide
     @Nullable
     public TileEntity createNewTileEntity(World worldIn, int meta) {
         return new ShipHelmTileEntity();
+    }
+
+    private static boolean isAssembled(@NotNull IBlockAccess world, @NotNull BlockPos pos) {
+        TileEntity tileEntity = world.getTileEntity(pos);
+        return tileEntity instanceof ShipHelmTileEntity shipHelm && shipHelm.isAssembled();
     }
 }

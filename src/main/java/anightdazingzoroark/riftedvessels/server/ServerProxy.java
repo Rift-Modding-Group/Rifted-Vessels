@@ -3,6 +3,7 @@ package anightdazingzoroark.riftedvessels.server;
 import anightdazingzoroark.riftedvessels.RiftedVessels;
 import anightdazingzoroark.riftedvessels.server.blocks.RiftedVesselsBlocks;
 import anightdazingzoroark.riftedvessels.server.items.RiftedVesselsItems;
+import anightdazingzoroark.riftedvessels.server.message.AlignShipMessage;
 import anightdazingzoroark.riftedvessels.server.message.AssembleShipMessage;
 import anightdazingzoroark.riftedvessels.server.message.ControlShipMessage;
 import anightdazingzoroark.riftedvessels.server.message.OpenShipHelmGuiMessage;
@@ -30,6 +31,7 @@ public class ServerProxy {
         MESSAGE_WRAPPER.registerMessage(ShipControlStateMessage.class, RiftLibMessageSide.CLIENT);
         MESSAGE_WRAPPER.registerMessage(ControlShipMessage.class, RiftLibMessageSide.SERVER);
         MESSAGE_WRAPPER.registerMessage(AssembleShipMessage.class, RiftLibMessageSide.SERVER);
+        MESSAGE_WRAPPER.registerMessage(AlignShipMessage.class, RiftLibMessageSide.SERVER);
 
         //---events---
         MinecraftForge.EVENT_BUS.register(new RiftedVesselsBlocks());
