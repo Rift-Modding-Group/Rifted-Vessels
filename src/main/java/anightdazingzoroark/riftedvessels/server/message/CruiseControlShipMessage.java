@@ -52,8 +52,9 @@ public class CruiseControlShipMessage extends RiftLibMessage<CruiseControlShipMe
         if (!(tileEntity instanceof ShipHelmTileEntity shipHelm)) return;
         if (!shipHelm.isAssembled() || !RiftedValkyriumAPI.isPosInShipyard(world, shipHelmPos)) return;
         if (!shipHelm.isPlayerWithinControlDistance(serverPlayer)) return;
+        if (message.cruiseControl && shipHelm.getAligning()) return;
 
-        shipHelm.setCruiseControlling(message.cruiseControl);
+        shipHelm.requestCruiseControlChange(message.cruiseControl);
     }
 
     @Override

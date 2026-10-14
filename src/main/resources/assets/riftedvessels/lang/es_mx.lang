@@ -1,4 +1,5 @@
 tile.riftedvessels.ship_helm.name=Timón
+tile.riftedvessels.ship_helm.tooltip=¡Usa esto para armar y controlar barcos!
 
 gui.riftedvessels.ship_helm=Timón
 gui.riftedvessels.ship_helm.assemble=Armar

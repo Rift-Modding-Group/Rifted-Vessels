@@ -1,5 +1,6 @@
 package anightdazingzoroark.riftedvessels.server.message;
 
+import anightdazingzoroark.riftedvessels.server.tileentities.ShipHelmController;
 import anightdazingzoroark.riftedvessels.server.tileentities.ShipHelmTileEntity;
 import anightdazingzoroark.riftlib.message.RiftLibMessage;
 import io.netty.buffer.ByteBuf;
@@ -47,7 +48,7 @@ public class ControlShipMessage extends RiftLibMessage<ControlShipMessage> {
     ) {
         if (!(player instanceof EntityPlayerMP serverPlayer)) return;
         if (message.forward < -1 || message.forward > 1 || message.turn < -1 || message.turn > 1) return;
-        ShipHelmTileEntity.handleControlInput(serverPlayer, message.forward, message.turn, message.stopControlling);
+        ShipHelmController.handleControlInput(serverPlayer, message.forward, message.turn, message.stopControlling);
     }
 
     @Override

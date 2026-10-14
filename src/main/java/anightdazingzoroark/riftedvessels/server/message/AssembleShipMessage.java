@@ -48,10 +48,10 @@ public class AssembleShipMessage extends RiftLibMessage<AssembleShipMessage> {
         if (!(tileEntity instanceof ShipHelmTileEntity shipHelmTile)) return;
 
         boolean assembled = RiftedValkyriumAPI.getPhysoManagingBlock(world, shipHelmPos).isPresent();
-        if (shipHelmTile.isAssembled() != assembled || message.assemble == assembled) return;
+        if (message.assemble == assembled) return;
         if (message.assemble && RiftedVesselsUtil.isBlockPosBlacklisted(world, shipHelmPos.down())) return;
 
-        shipHelmTile.setAssembled(message.assemble);
+        shipHelmTile.requestAssemblyChange(message.assemble);
     }
 
     @Override

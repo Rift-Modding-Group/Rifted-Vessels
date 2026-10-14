@@ -1,4 +1,5 @@
 tile.riftedvessels.ship_helm.name=Ship Helm
+tile.riftedvessels.ship_helm.tooltip=Use this to build and control ships!
 
 gui.riftedvessels.ship_helm=Ship Helm
 gui.riftedvessels.ship_helm.assemble=Assemble

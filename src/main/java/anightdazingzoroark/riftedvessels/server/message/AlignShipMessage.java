@@ -47,8 +47,9 @@ public class AlignShipMessage extends RiftLibMessage<AlignShipMessage> {
         TileEntity tileEntity = world.getTileEntity(shipHelmPos);
         if (!(tileEntity instanceof ShipHelmTileEntity shipHelm)) return;
         if (!shipHelm.isAssembled() || !RiftedValkyriumAPI.isPosInShipyard(world, shipHelmPos)) return;
+        if (message.align && shipHelm.getCruiseControlling()) return;
 
-        shipHelm.setAligning(message.align);
+        shipHelm.requestAligningChange(message.align);
     }
 
     @Override

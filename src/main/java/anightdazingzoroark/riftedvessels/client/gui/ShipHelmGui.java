@@ -26,10 +26,7 @@ import valkyrienwarfare.api.TransformType;
 import java.util.Optional;
 
 public class ShipHelmGui extends GuiScreen {
-    private static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation(
-            RiftedVessels.MOD_ID,
-            "textures/gui/ship_helm.png"
-    );
+    private static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation(RiftedVessels.MOD_ID, "textures/gui/ship_helm.png");
     private static final int ASSEMBLE_BUTTON_ID = 0;
     private static final int ALIGN_BUTTON_ID = 1;
     private static final int CRUISE_CONTROL_BUTTON_ID = 2;
@@ -106,13 +103,9 @@ public class ShipHelmGui extends GuiScreen {
         this.updateCruiseControlButton();
         this.drawDefaultBackground();
         int guiTop = (this.height - GUI_HEIGHT) / 2;
-        this.drawCenteredString(
-                this.fontRenderer,
-                I18n.format("gui.riftedvessels.ship_helm"),
-                this.width / 2,
-                guiTop + 12,
-                0xFFFFFF
-        );
+        String title = I18n.format("gui.riftedvessels.ship_helm");
+        int titleX = (this.width - this.fontRenderer.getStringWidth(title)) / 2;
+        this.fontRenderer.drawString(title, titleX, guiTop + 12, 0x404040);
         super.drawScreen(mouseX, mouseY, partialTicks);
         if (this.invalidAssemblyBlock && this.assembleButton.isMouseOver()) {
             this.drawHoveringText(
@@ -141,7 +134,6 @@ public class ShipHelmGui extends GuiScreen {
                 if (!(tileEntity instanceof ShipHelmTileEntity shipHelm)) return;
 
                 boolean align = !shipHelm.getAligning();
-                shipHelm.setAligning(align);
                 ServerProxy.MESSAGE_WRAPPER.sendToServer(new AlignShipMessage(align, this.shipHelmPos));
                 this.updateAlignButton();
                 this.updateCruiseControlButton();
@@ -151,8 +143,8 @@ public class ShipHelmGui extends GuiScreen {
                 if (!(tileEntity instanceof ShipHelmTileEntity shipHelm)) return;
 
                 boolean cruiseControl = !shipHelm.getCruiseControlling();
-                shipHelm.setCruiseControlling(cruiseControl);
                 ServerProxy.MESSAGE_WRAPPER.sendToServer(new CruiseControlShipMessage(cruiseControl, this.shipHelmPos));
+                this.updateAlignButton();
                 this.updateCruiseControlButton();
             }
         }
@@ -189,10 +181,17 @@ public class ShipHelmGui extends GuiScreen {
         TileEntity tileEntity = this.world.getTileEntity(this.shipHelmPos);
 
         boolean assembled = RiftedValkyriumAPI.getShipManagingBlock(this.world, this.shipHelmPos).isPresent();
-        boolean helmAssembled = !(tileEntity instanceof ShipHelmTileEntity shipHelm) || shipHelm.isAssembled();
-        this.alignButton.enabled = assembled && helmAssembled;
+        boolean helmAssembled = false;
+        boolean aligning = false;
+        boolean cruiseControlling = false;
+        if (tileEntity instanceof ShipHelmTileEntity shipHelm) {
+            helmAssembled = shipHelm.isAssembled();
+            aligning = shipHelm.getAligning();
+            cruiseControlling = shipHelm.getCruiseControlling();
+        }
+        boolean disassembling = assembled && !this.assemblyRequested;
+        this.alignButton.enabled = assembled && helmAssembled && !cruiseControlling && !disassembling;
 
-        boolean aligning = tileEntity instanceof ShipHelmTileEntity shipHelm && shipHelm.getAligning();
         String action = aligning ? "stop_align" : "set_align";
         this.alignButton.displayString = I18n.format("gui.riftedvessels.ship_helm." + action);
     }

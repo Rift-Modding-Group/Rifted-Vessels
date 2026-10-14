@@ -8,9 +8,12 @@ import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -21,9 +24,13 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import valkyrienwarfare.api.RiftedValkyriumAPI;
+
+import java.util.List;
 
 @SuppressWarnings("deprecation")
 public class ShipHelmBlock extends BlockHorizontal implements ITileEntityProvider {
@@ -152,6 +159,12 @@ public class ShipHelmBlock extends BlockHorizontal implements ITileEntityProvide
     @Nullable
     public TileEntity createNewTileEntity(World worldIn, int meta) {
         return new ShipHelmTileEntity();
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
+        tooltip.add(I18n.format("tile.riftedvessels.ship_helm.tooltip"));
     }
 
     private static boolean isAssembled(@NotNull IBlockAccess world, @NotNull BlockPos pos) {
