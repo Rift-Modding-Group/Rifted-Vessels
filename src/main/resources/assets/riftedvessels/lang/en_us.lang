@@ -3,5 +3,12 @@ tile.riftedvessels.ship_helm.name=Ship Helm
 gui.riftedvessels.ship_helm=Ship Helm
 gui.riftedvessels.ship_helm.assemble=Assemble
 gui.riftedvessels.ship_helm.disassemble=Disassemble
-gui.riftedvessels.ship_helm.align=Align
+gui.riftedvessels.ship_helm.assembling=Assembling...
+gui.riftedvessels.ship_helm.disassembling=Disassembling...
+gui.riftedvessels.ship_helm.invalid_assembly_block=The Ship Helm is not on top of a valid block
+gui.riftedvessels.ship_helm.set_align=Set Align
+gui.riftedvessels.ship_helm.stop_align=Stop Align
 gui.riftedvessels.ship_helm.cruise_control=Cruise Control
+
+warning.riftedvessels.not_assembled=Assemble the ship first before controlling!
+warning.riftedvessels.helm_occupied=Someone else is already controlling this ship!

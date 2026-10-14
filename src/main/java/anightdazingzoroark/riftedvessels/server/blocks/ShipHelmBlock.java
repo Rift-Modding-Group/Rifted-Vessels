@@ -18,9 +18,11 @@ import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+import valkyrienwarfare.api.RiftedValkyriumAPI;
 
 public class ShipHelmBlock extends BlockHorizontal implements ITileEntityProvider {
     private static final AxisAlignedBB HELM_AABB = new AxisAlignedBB(0.125D, 0, 0.125D, 0.875D, 1D, 0.875D);
@@ -49,12 +51,38 @@ public class ShipHelmBlock extends BlockHorizontal implements ITileEntityProvide
             World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
             EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ
     ) {
-        if (!playerIn.isSneaking()) return false;
+        if (worldIn.isRemote || !(playerIn instanceof EntityPlayerMP serverPlayer)) return true;
 
-        if (!worldIn.isRemote && playerIn instanceof EntityPlayerMP serverPlayer) {
-            ServerProxy.MESSAGE_WRAPPER.sendTo(new OpenShipHelmGuiMessage(pos), serverPlayer);
+        TileEntity tileEntity = worldIn.getTileEntity(pos);
+        if (!(tileEntity instanceof ShipHelmTileEntity shipHelm)) return false;
+
+        //open ship ui
+        if (playerIn.isSneaking()) {
+            ServerProxy.MESSAGE_WRAPPER.sendTo(new OpenShipHelmGuiMessage(pos, shipHelm.isAssembled()), serverPlayer);
+        }
+        //attempt to start controlling ship
+        else {
+            if (shipHelm.isControlledBy(serverPlayer)) {
+                shipHelm.stopControlling();
+            }
+            else if (!shipHelm.isAssembled() || RiftedValkyriumAPI.getPhysoManagingBlock(worldIn, pos).isEmpty()) {
+                playerIn.sendStatusMessage(new TextComponentTranslation("warning.riftedvessels.not_assembled"), false);
+            }
+            else if (shipHelm.isBeingControlled()) {
+                playerIn.sendStatusMessage(new TextComponentTranslation("warning.riftedvessels.helm_occupied"), false);
+            }
+            else {
+                shipHelm.startControlling(serverPlayer);
+            }
         }
         return true;
+    }
+
+    @Override
+    public void breakBlock(World worldIn, BlockPos pos, IBlockState state) {
+        TileEntity tileEntity = worldIn.getTileEntity(pos);
+        if (tileEntity instanceof ShipHelmTileEntity shipHelm) shipHelm.stopControlling();
+        super.breakBlock(worldIn, pos, state);
     }
 
     @Override

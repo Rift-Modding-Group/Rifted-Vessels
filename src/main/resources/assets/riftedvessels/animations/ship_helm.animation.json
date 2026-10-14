@@ -1,0 +1,21 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.ship_helm.left": {
+			"loop": true,
+			"bones": {
+				"wheel": {
+					"rotation": [0, 0, -45]
+				}
+			}
+		},
+		"animation.ship_helm.right": {
+			"loop": true,
+			"bones": {
+				"wheel": {
+					"rotation": [0, 0, 45]
+				}
+			}
+		}
+	}
+}
