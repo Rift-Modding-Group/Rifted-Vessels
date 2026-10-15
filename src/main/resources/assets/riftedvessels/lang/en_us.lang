@@ -8,6 +8,7 @@ tile.riftedvessels.floater.name=Floater
 tile.riftedvessels.floater.tooltip_one=Put this on a ship to apply more buoyancy.
 tile.riftedvessels.floater.tooltip_two=Buoyancy can be reduced or disabled by supplying a redstone signal.
 tile.riftedvessels.balloon.name=Balloon
+tile.riftedvessels.balloon.tooltip=Put at least %s of this on a ship to allow for flight!
 tile.riftedvessels.balloon.white.name=White Balloon
 tile.riftedvessels.balloon.orange.name=Orange Balloon
 tile.riftedvessels.balloon.magenta.name=Magenta Balloon

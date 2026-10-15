@@ -38,7 +38,7 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
     private static final double RELEASED_FORWARD_VELOCITY_STOP_THRESHOLD = 0.01D;
     private static final double RELEASED_TURN_VELOCITY_STOP_THRESHOLD = 0.001D;
     private static final Vec3d WORLD_UP = new Vec3d(0D, 1D, 0D);
-    private static final double MIN_STABILIZATION_ERROR = 1.0E-6D;
+    private static final double MIN_STABILIZATION_ERROR = 1E-6D;
     //increase this value to make ship more stable
     private static final double STABILIZATION_RESPONSE = 90D;
     private static final double STABILIZATION_DAMPING_RATIO = 1D;
@@ -69,18 +69,10 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
     private volatile int turnInput;
     private volatile int verticalInput;
 
-    //volatility for preventing the force calculation from retaining an old facing or config value
+    //volatility for preventing force calculations from retaining an old value
     private volatile int forwardX;
     private volatile int forwardZ;
-    private volatile double acceleration = RiftedVesselsConfig.shipHelmAcceleration;
-    private volatile double maximumSpeed = RiftedVesselsConfig.shipHelmMaximumSpeed;
-    private volatile double turnAcceleration = RiftedVesselsConfig.shipHelmTurnAcceleration;
-    private volatile double maximumTurnSpeed = RiftedVesselsConfig.shipHelmMaximumTurnSpeed;
     private volatile int balloonCount;
-    private volatile int minimumBalloonCount = RiftedVesselsConfig.shipBalloonMinimumCount;
-    private volatile double verticalAcceleration = RiftedVesselsConfig.shipBalloonVerticalAcceleration;
-    private volatile double maximumAscentSpeed = RiftedVesselsConfig.shipBalloonMaximumAscentSpeed;
-    private volatile double maximumDescentSpeed = RiftedVesselsConfig.shipBalloonMaximumDescentSpeed;
 
     private int lastPhysicsForwardInput;
     private int lastPhysicsTurnInput;
@@ -175,15 +167,7 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
         if (this.lastServerTick == serverTick) return;
         this.lastServerTick = serverTick;
 
-        this.acceleration = RiftedVesselsConfig.shipHelmAcceleration;
-        this.maximumSpeed = RiftedVesselsConfig.shipHelmMaximumSpeed;
-        this.turnAcceleration = RiftedVesselsConfig.shipHelmTurnAcceleration;
-        this.maximumTurnSpeed = RiftedVesselsConfig.shipHelmMaximumTurnSpeed;
         this.balloonCount = BalloonController.getBalloonCount(this.ship);
-        this.minimumBalloonCount = RiftedVesselsConfig.shipBalloonMinimumCount;
-        this.verticalAcceleration = RiftedVesselsConfig.shipBalloonVerticalAcceleration;
-        this.maximumAscentSpeed = RiftedVesselsConfig.shipBalloonMaximumAscentSpeed;
-        this.maximumDescentSpeed = RiftedVesselsConfig.shipBalloonMaximumDescentSpeed;
 
         boolean shipAligning = this.ship.isShipAligningToGrid();
         if (shipAligning != this.aligning) {
@@ -380,7 +364,7 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
         int turn = this.turnInput;
         int vertical = this.verticalInput;
 
-        if (this.balloonCount >= this.minimumBalloonCount) {
+        if (this.balloonCount >= RiftedVesselsConfig.shipBalloonMinimumCount) {
             this.applyVerticalForce(forces, shipData, mass, vertical);
         }
 
@@ -397,26 +381,17 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
         this.lastPhysicsTurnInput = turn;
         if (forward == 0 && turn == 0 && !this.slowingForwardMotion && !this.slowingTurningMotion) return;
 
-        double configuredAcceleration = this.acceleration;
-        double configuredMaximumSpeed = this.maximumSpeed;
-
         //apply forward/backward motion
         if (this.slowingForwardMotion) {
             this.slowingForwardMotion = this.slowForwardMomentum(forces, shipData, mass);
         }
-        if (forward != 0 && configuredAcceleration > 0D && configuredMaximumSpeed > 0D) {
-            this.applyForwardForce(forces, shipData, mass, forward, configuredAcceleration, configuredMaximumSpeed);
-        }
+        if (forward != 0) this.applyForwardForce(forces, shipData, mass, forward);
 
         //apply left/right rotation
-        double configuredTurnAcceleration = this.turnAcceleration;
-        double configuredMaximumTurnSpeed = this.maximumTurnSpeed;
         if (this.slowingTurningMotion) {
             this.slowingTurningMotion = this.slowTurningMomentum(forces, shipData, mass);
         }
-        if (turn != 0 && configuredTurnAcceleration > 0D && configuredMaximumTurnSpeed > 0D) {
-            this.applyTurningTorque(forces, shipData, mass, turn, configuredTurnAcceleration, configuredMaximumTurnSpeed);
-        }
+        if (turn != 0) this.applyTurningTorque(forces, shipData, mass, turn);
     }
 
     private void resetPhysicsInputState() {
@@ -508,10 +483,7 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
     }
 
     //apply forward/backward ship movement
-    private void applyForwardForce(
-            @NotNull IShipForces forces, @NotNull IShipData shipData, double mass,
-            int forward, double configuredAcceleration, double configuredMaximumSpeed
-    ) {
+    private void applyForwardForce(@NotNull IShipForces forces, @NotNull IShipData shipData, double mass, int forward) {
         double directionScale = forward < 0 ? 0.25D : 1D;
         double forceX = forward * this.forwardX * directionScale; //slow down when going backwards
         double forceZ = forward * this.forwardZ * directionScale; //same as above
@@ -521,41 +493,37 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
                 TransformType.GLOBAL_TO_SUBSPACE
         );
         double velocityInRequestedDirection = shipVelocity.x * forceX + shipVelocity.z * forceZ;
-        if (velocityInRequestedDirection >= configuredMaximumSpeed) return;
+        if (velocityInRequestedDirection >= RiftedVesselsConfig.shipHelmMaximumSpeed) return;
 
-        double forceMagnitude = mass * configuredAcceleration;
+        double forceMagnitude = mass * RiftedVesselsConfig.shipHelmAcceleration;
         forces.applyShipForce(new Vec3d(forceX * forceMagnitude, 0D, forceZ * forceMagnitude));
     }
 
     //apply left/right ship turning
-    private void applyTurningTorque(
-            @NotNull IShipForces forces, @NotNull IShipData shipData, double mass,
-            int turn, double configuredTurnAcceleration, double configuredMaximumTurnSpeed
-    ) {
+    private void applyTurningTorque(@NotNull IShipForces forces, @NotNull IShipData shipData, double mass, int turn) {
         Vector3dc angularVelocity = shipData.getAngularVelocity();
-        double maximumTurnSpeedRadians = Math.toRadians(configuredMaximumTurnSpeed);
+        double maximumTurnSpeedRadians = Math.toRadians(RiftedVesselsConfig.shipHelmMaximumTurnSpeed);
         if (angularVelocity.y() * turn >= maximumTurnSpeedRadians) return;
 
         double yawMomentOfInertia = this.getWorldYawMomentOfInertia(forces.getShip(), shipData, mass);
-        double torque = yawMomentOfInertia * Math.toRadians(configuredTurnAcceleration) * turn;
+        double torque = yawMomentOfInertia * Math.toRadians(RiftedVesselsConfig.shipHelmTurnAcceleration) * turn;
         forces.applyWorldTorque(new Vec3d(0D, torque, 0D));
     }
 
     private void applyVerticalForce(@NotNull IShipForces forces, @NotNull IShipData shipData, double mass, int vertical) {
         double timeStep = forces.getTimeStepSeconds();
-        double configuredAcceleration = this.verticalAcceleration;
-        if (timeStep <= 0D || configuredAcceleration <= 0D) return;
+        if (timeStep <= 0D || RiftedVesselsConfig.shipBalloonVerticalAcceleration <= 0D) return;
 
         double targetVelocity;
-        if (vertical > 0) targetVelocity = this.maximumAscentSpeed;
-        else if (vertical < 0) targetVelocity = -this.maximumDescentSpeed;
+        if (vertical > 0) targetVelocity = RiftedVesselsConfig.shipBalloonMaximumAscentSpeed;
+        else if (vertical < 0) targetVelocity = -RiftedVesselsConfig.shipBalloonMaximumDescentSpeed;
         else targetVelocity = 0D;
 
         double currentVelocity = shipData.getLinearVelocity().y();
         double desiredAcceleration = Math.clamp(
                 (targetVelocity - currentVelocity) / timeStep,
-                -configuredAcceleration,
-                configuredAcceleration
+                -RiftedVesselsConfig.shipBalloonVerticalAcceleration,
+                RiftedVesselsConfig.shipBalloonVerticalAcceleration
         );
         double force = mass * (desiredAcceleration - RiftedValkyriumAPI.getWorldGravity().y());
         if (force <= 0D) return;

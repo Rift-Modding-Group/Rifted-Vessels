@@ -8,6 +8,7 @@ tile.riftedvessels.floater.name=Flotador
 tile.riftedvessels.floater.tooltip_one=Pon esto para aplicar mas flotabilidad en tu barco.
 tile.riftedvessels.floater.tooltip_two=La flotabilidad se puede reducir o desactivar al alimentarle una señal de redstone.
 tile.riftedvessels.balloon.name=Globo
+tile.riftedvessels.balloon.tooltip=¡Pon al menos %s de esto en un barco para poder volar!
 tile.riftedvessels.balloon.white.name=Globo blanco
 tile.riftedvessels.balloon.orange.name=Globo naranja
 tile.riftedvessels.balloon.magenta.name=Globo magenta

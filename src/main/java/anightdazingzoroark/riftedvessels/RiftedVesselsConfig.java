@@ -3,6 +3,7 @@ package anightdazingzoroark.riftedvessels;
 import net.minecraftforge.common.config.Config;
 
 @Config(modid = RiftedVessels.MOD_ID)
+@Config.RequiresMcRestart
 public class RiftedVesselsConfig {
     //---helm---
     @Config.Name("Ship Helm Acceleration")
