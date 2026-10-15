@@ -8,9 +8,11 @@ import anightdazingzoroark.riftedvessels.server.blocks.RiftedVesselsBlocks;
 import anightdazingzoroark.riftedvessels.server.gui.RiftedVesselsGuiHandler;
 import anightdazingzoroark.riftedvessels.server.items.RiftedVesselsItems;
 import anightdazingzoroark.riftlib.renderers.geo.GeoBlockRenderer;
+import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
+import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -48,6 +50,14 @@ public class ClientProxy extends ServerProxy {
             final String resName = item.getRegistryName().toString();
             final ModelResourceLocation res = new ModelResourceLocation(resName, "inventory");
             Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, 0, res);
+        }
+
+        //---register solid block models---
+        for (Block block : RiftedVesselsBlocks.BLOCKS) {
+            ModelLoader.setCustomModelResourceLocation(
+                    Item.getItemFromBlock(block), 0,
+                    new ModelResourceLocation(block.getRegistryName().toString(), "inventory")
+            );
         }
 
         //---GUIs---

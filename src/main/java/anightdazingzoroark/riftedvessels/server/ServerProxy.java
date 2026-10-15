@@ -4,6 +4,7 @@ import anightdazingzoroark.riftedvessels.RiftedVessels;
 import anightdazingzoroark.riftedvessels.server.blocks.RiftedVesselsBlocks;
 import anightdazingzoroark.riftedvessels.server.items.RiftedVesselsItems;
 import anightdazingzoroark.riftedvessels.server.message.*;
+import anightdazingzoroark.riftedvessels.server.tileentities.ShipEngineTileEntity;
 import anightdazingzoroark.riftedvessels.server.tileentities.ShipHelmTileEntity;
 import anightdazingzoroark.riftlib.message.RiftLibMessage;
 import anightdazingzoroark.riftlib.message.RiftLibMessageSide;
@@ -42,6 +43,10 @@ public class ServerProxy {
         GameRegistry.registerTileEntity(
                 ShipHelmTileEntity.class,
                 new ResourceLocation(RiftedVessels.MOD_ID, "ship_helm")
+        );
+        GameRegistry.registerTileEntity(
+                ShipEngineTileEntity.class,
+                new ResourceLocation(RiftedVessels.MOD_ID, "ship_engine")
         );
 
         //---custom block weights---

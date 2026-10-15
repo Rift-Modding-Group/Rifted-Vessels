@@ -1,0 +1,12 @@
+{
+    "variants": {
+        "burning=false,facing=north": { "model": "riftedvessels:ship_engine" },
+        "burning=false,facing=south": { "model": "riftedvessels:ship_engine", "y": 180 },
+        "burning=false,facing=west":  { "model": "riftedvessels:ship_engine", "y": 270 },
+        "burning=false,facing=east":  { "model": "riftedvessels:ship_engine", "y": 90 },
+        "burning=true,facing=north": { "model": "riftedvessels:ship_engine_on" },
+        "burning=true,facing=south": { "model": "riftedvessels:ship_engine_on", "y": 180 },
+        "burning=true,facing=west":  { "model": "riftedvessels:ship_engine_on", "y": 270 },
+        "burning=true,facing=east":  { "model": "riftedvessels:ship_engine_on", "y": 90 }
+    }
+}

@@ -2,6 +2,8 @@ key.riftedvessels.cruise_control=Toggle cruise control
 
 tile.riftedvessels.ship_helm.name=Ship Helm
 tile.riftedvessels.ship_helm.tooltip=Use this to build and control ships!
+tile.riftedvessels.ship_engine.name=Ship Engine
+tile.riftedvessels.ship_engine.tooltip=Put this on a ship to increase its speed! Requires fuel.
 
 gui.riftedvessels.ship_helm=Ship Helm
 gui.riftedvessels.ship_helm.assemble=Assemble

@@ -1,0 +1,8 @@
+{
+  "block.riftedvessels.shipengine.ignite": {
+    "sounds": [
+      "mob/ghast/fireball4"
+    ],
+    "subtitle": "subtitles.block.riftedvessels.shipengine.ignite"
+  }
+}

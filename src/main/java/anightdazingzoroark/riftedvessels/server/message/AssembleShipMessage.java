@@ -1,6 +1,6 @@
 package anightdazingzoroark.riftedvessels.server.message;
 
-import anightdazingzoroark.riftedvessels.server.RiftedVesselsUtil;
+import anightdazingzoroark.riftedvessels.RiftedVesselsUtil;
 import anightdazingzoroark.riftedvessels.server.tileentities.ShipHelmTileEntity;
 import anightdazingzoroark.riftlib.message.RiftLibMessage;
 import io.netty.buffer.ByteBuf;

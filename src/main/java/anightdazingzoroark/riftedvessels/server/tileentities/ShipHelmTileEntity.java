@@ -1,6 +1,6 @@
 package anightdazingzoroark.riftedvessels.server.tileentities;
 
-import anightdazingzoroark.riftedvessels.server.RiftedVesselsUtil;
+import anightdazingzoroark.riftedvessels.RiftedVesselsUtil;
 import anightdazingzoroark.riftedvessels.server.blocks.ShipHelmBlock;
 import anightdazingzoroark.riftlib.nbtStorageUser.propertyValue.BooleanPropertyValue;
 import anightdazingzoroark.riftlib.nbtStorageUser.propertyValue.IntegerPropertyValue;

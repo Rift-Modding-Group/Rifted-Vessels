@@ -14,6 +14,21 @@ public class RiftedVesselsConfig {
     @Config.RangeDouble(min = 0.1D, max = 1000D)
     public static double shipHelmMaximumSpeed = 12D;
 
+    @Config.Name("Ship Engine Speed Bonus")
+    @Config.Comment("Additional maximum speed in blocks per second provided by each burning Ship Engine.")
+    @Config.RangeDouble(min = 0D, max = 100D)
+    public static double shipEngineSpeedBonus = 2D;
+
+    @Config.Name("Ship Engine Maximum Speed Bonus")
+    @Config.Comment("Maximum combined speed bonus in blocks per second that burning Ship Engines can provide to a ship.")
+    @Config.RangeDouble(min = 0D, max = 1000D)
+    public static double shipEngineMaximumSpeedBonus = 20D;
+
+    @Config.Name("Ship Engine Acceleration")
+    @Config.Comment("Acceleration in blocks per second squared provided by each burning Ship Engine.")
+    @Config.RangeDouble(min = 0D, max = 100D)
+    public static double shipEngineAcceleration = 1D;
+
     @Config.Name("Ship Helm Turn Acceleration")
     @Config.Comment("Turning acceleration in degrees per second squared while piloting with a Ship Helm.")
     @Config.RangeDouble(min = 0.1D, max = 360D)

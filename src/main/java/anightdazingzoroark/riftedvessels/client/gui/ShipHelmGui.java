@@ -1,7 +1,7 @@
 package anightdazingzoroark.riftedvessels.client.gui;
 
 import anightdazingzoroark.riftedvessels.RiftedVessels;
-import anightdazingzoroark.riftedvessels.server.RiftedVesselsUtil;
+import anightdazingzoroark.riftedvessels.RiftedVesselsUtil;
 import anightdazingzoroark.riftedvessels.server.ServerProxy;
 import anightdazingzoroark.riftedvessels.server.blocks.RiftedVesselsBlocks;
 import anightdazingzoroark.riftedvessels.server.message.AlignShipMessage;
