@@ -13,10 +13,7 @@ import net.minecraft.world.WorldServer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3dc;
-import valkyrienwarfare.api.IPhysicsEntity;
-import valkyrienwarfare.api.IShipData;
-import valkyrienwarfare.api.IShipMaintenanceProvider;
-import valkyrienwarfare.api.TransformType;
+import valkyrienwarfare.api.*;
 import valkyrienwarfare.api.forces.IShipForces;
 import valkyrienwarfare.api.forces.IShipForcesInducer;
 
@@ -34,6 +31,7 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
     private static final String CONTROL_SESSION_KEY = "RiftedVesselsShipHelmSession";
     private static final String CONTROL_FORWARD_KEY = "RiftedVesselsShipHelmForward";
     private static final String CONTROL_TURN_KEY = "RiftedVesselsShipHelmTurn";
+    private static final String CONTROL_VERTICAL_KEY = "RiftedVesselsShipHelmVertical";
 
     //reduce a specific amnt of velocity per second to make ship stopping smoother
     private static final double RELEASED_VELOCITY_RETENTION_PER_SECOND = 0.5D;
@@ -69,6 +67,7 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
     //volatility for making a released key visible to the physics callback without waiting for another synchronization point
     private volatile int forwardInput;
     private volatile int turnInput;
+    private volatile int verticalInput;
 
     //volatility for preventing the force calculation from retaining an old facing or config value
     private volatile int forwardX;
@@ -77,6 +76,11 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
     private volatile double maximumSpeed = RiftedVesselsConfig.shipHelmMaximumSpeed;
     private volatile double turnAcceleration = RiftedVesselsConfig.shipHelmTurnAcceleration;
     private volatile double maximumTurnSpeed = RiftedVesselsConfig.shipHelmMaximumTurnSpeed;
+    private volatile int balloonCount;
+    private volatile int minimumBalloonCount = RiftedVesselsConfig.shipBalloonMinimumCount;
+    private volatile double verticalAcceleration = RiftedVesselsConfig.shipBalloonVerticalAcceleration;
+    private volatile double maximumAscentSpeed = RiftedVesselsConfig.shipBalloonMaximumAscentSpeed;
+    private volatile double maximumDescentSpeed = RiftedVesselsConfig.shipBalloonMaximumDescentSpeed;
 
     private int lastPhysicsForwardInput;
     private int lastPhysicsTurnInput;
@@ -114,7 +118,7 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
         if (worldControllers.isEmpty()) CONTROLLERS_BY_WORLD.remove(controller.world);
     }
 
-    public static void handleControlInput(@NotNull EntityPlayerMP player, int forward, int turn, boolean stopControlling) {
+    public static void handleControlInput(@NotNull EntityPlayerMP player, int forward, int turn, int vertical, boolean stopControlling) {
         NBTTagCompound controlData = player.getEntityData();
         if (!controlData.hasUniqueId(CONTROL_SESSION_KEY)) {
             ServerProxy.MESSAGE_WRAPPER.sendTo(new ShipControlStateMessage(null), player);
@@ -126,6 +130,7 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
         else {
             controlData.setInteger(CONTROL_FORWARD_KEY, Math.clamp(forward, -1, 1));
             controlData.setInteger(CONTROL_TURN_KEY, Math.clamp(turn, -1, 1));
+            controlData.setInteger(CONTROL_VERTICAL_KEY, Math.clamp(vertical, -1, 1));
         }
     }
 
@@ -174,6 +179,11 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
         this.maximumSpeed = RiftedVesselsConfig.shipHelmMaximumSpeed;
         this.turnAcceleration = RiftedVesselsConfig.shipHelmTurnAcceleration;
         this.maximumTurnSpeed = RiftedVesselsConfig.shipHelmMaximumTurnSpeed;
+        this.balloonCount = BalloonController.getBalloonCount(this.ship);
+        this.minimumBalloonCount = RiftedVesselsConfig.shipBalloonMinimumCount;
+        this.verticalAcceleration = RiftedVesselsConfig.shipBalloonVerticalAcceleration;
+        this.maximumAscentSpeed = RiftedVesselsConfig.shipBalloonMaximumAscentSpeed;
+        this.maximumDescentSpeed = RiftedVesselsConfig.shipBalloonMaximumDescentSpeed;
 
         boolean shipAligning = this.ship.isShipAligningToGrid();
         if (shipAligning != this.aligning) {
@@ -240,6 +250,7 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
         this.controlSessionUuid = null;
         this.forwardInput = 0;
         this.turnInput = 0;
+        this.verticalInput = 0;
         if (previousHelm != null) previousHelm.setTurning(0);
 
         if (playerUuid == null || sessionUuid == null) return;
@@ -255,6 +266,7 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
         if (this.controllingPlayerUuid == null || this.controlSessionUuid == null || this.controllingHelm == null) {
             this.forwardInput = 0;
             this.turnInput = 0;
+            this.verticalInput = 0;
             return;
         }
         if (!(this.world instanceof WorldServer serverWorld) || serverWorld.getMinecraftServer() == null) {
@@ -276,6 +288,7 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
         NBTTagCompound controlData = player.getEntityData();
         this.forwardInput = this.cruiseControlling ? 0 : Math.clamp(controlData.getInteger(CONTROL_FORWARD_KEY), -1, 1);
         this.turnInput = Math.clamp(controlData.getInteger(CONTROL_TURN_KEY), -1, 1);
+        this.verticalInput = Math.clamp(controlData.getInteger(CONTROL_VERTICAL_KEY), -1, 1);
         this.controllingHelm.setTurning(this.turnInput);
         if (!this.cruiseControlling) this.captureDirection(this.controllingHelm);
     }
@@ -365,6 +378,11 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
 
         int forward = this.cruiseControlling ? 1 : this.forwardInput;
         int turn = this.turnInput;
+        int vertical = this.verticalInput;
+
+        if (this.balloonCount >= this.minimumBalloonCount) {
+            this.applyVerticalForce(forces, shipData, mass, vertical);
+        }
 
         //no forward/backward input means slowing down to smoothen travel
         if (forward == 0 && this.lastPhysicsForwardInput != 0) this.slowingForwardMotion = true;
@@ -523,6 +541,27 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
         forces.applyWorldTorque(new Vec3d(0D, torque, 0D));
     }
 
+    private void applyVerticalForce(@NotNull IShipForces forces, @NotNull IShipData shipData, double mass, int vertical) {
+        double timeStep = forces.getTimeStepSeconds();
+        double configuredAcceleration = this.verticalAcceleration;
+        if (timeStep <= 0D || configuredAcceleration <= 0D) return;
+
+        double targetVelocity;
+        if (vertical > 0) targetVelocity = this.maximumAscentSpeed;
+        else if (vertical < 0) targetVelocity = -this.maximumDescentSpeed;
+        else targetVelocity = 0D;
+
+        double currentVelocity = shipData.getLinearVelocity().y();
+        double desiredAcceleration = Math.clamp(
+                (targetVelocity - currentVelocity) / timeStep,
+                -configuredAcceleration,
+                configuredAcceleration
+        );
+        double force = mass * (desiredAcceleration - RiftedValkyriumAPI.getWorldGravity().y());
+        if (force <= 0D) return;
+        forces.applyWorldForce(new Vec3d(0D, force, 0D));
+    }
+
     private double getWorldYawMomentOfInertia(@NotNull IPhysicsEntity ship, @NotNull IShipData shipData, double mass) {
         Vec3d worldUpInShip = ship.rotateVector(WORLD_UP, TransformType.GLOBAL_TO_SUBSPACE);
         Vec3d momentsOfInertia = this.getMomentsOfInertia(shipData, mass);
@@ -549,6 +588,7 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
         controlData.setUniqueId(CONTROL_SESSION_KEY, controlSessionUuid);
         controlData.setInteger(CONTROL_FORWARD_KEY, 0);
         controlData.setInteger(CONTROL_TURN_KEY, 0);
+        controlData.setInteger(CONTROL_VERTICAL_KEY, 0);
     }
 
     private static boolean hasControlSession(@NotNull EntityPlayerMP player, @NotNull UUID controlSessionUuid) {
@@ -562,5 +602,6 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
         controlData.removeTag(CONTROL_SESSION_KEY + "Least");
         controlData.removeTag(CONTROL_FORWARD_KEY);
         controlData.removeTag(CONTROL_TURN_KEY);
+        controlData.removeTag(CONTROL_VERTICAL_KEY);
     }
 }

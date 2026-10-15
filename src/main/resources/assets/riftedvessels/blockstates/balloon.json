@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "color=white": { "model": "riftedvessels:balloon_white" },
+    "color=orange": { "model": "riftedvessels:balloon_orange" },
+    "color=magenta": { "model": "riftedvessels:balloon_magenta" },
+    "color=light_blue": { "model": "riftedvessels:balloon_light_blue" },
+    "color=yellow": { "model": "riftedvessels:balloon_yellow" },
+    "color=lime": { "model": "riftedvessels:balloon_lime" },
+    "color=pink": { "model": "riftedvessels:balloon_pink" },
+    "color=gray": { "model": "riftedvessels:balloon_gray" },
+    "color=silver": { "model": "riftedvessels:balloon_silver" },
+    "color=cyan": { "model": "riftedvessels:balloon_cyan" },
+    "color=purple": { "model": "riftedvessels:balloon_purple" },
+    "color=blue": { "model": "riftedvessels:balloon_blue" },
+    "color=brown": { "model": "riftedvessels:balloon_brown" },
+    "color=green": { "model": "riftedvessels:balloon_green" },
+    "color=red": { "model": "riftedvessels:balloon_red" },
+    "color=black": { "model": "riftedvessels:balloon_black" }
+  }
+}

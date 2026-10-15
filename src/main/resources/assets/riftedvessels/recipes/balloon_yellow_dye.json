@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "riftedvessels:balloon",
+      "data": 0
+    },
+    {
+      "item": "minecraft:dye",
+      "data": 11
+    }
+  ],
+  "result": {
+    "item": "riftedvessels:balloon",
+    "data": 4
+  }
+}

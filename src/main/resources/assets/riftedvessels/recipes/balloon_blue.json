@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "WSW",
+    "S S",
+    "WSW"
+  ],
+  "key": {
+    "W": {
+      "item": "minecraft:wool",
+      "data": 11
+    },
+    "S": {
+      "item": "minecraft:string"
+    }
+  },
+  "result": {
+    "item": "riftedvessels:balloon",
+    "data": 11
+  }
+}

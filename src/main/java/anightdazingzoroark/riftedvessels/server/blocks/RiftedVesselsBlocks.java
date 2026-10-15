@@ -4,6 +4,7 @@ import anightdazingzoroark.riftedvessels.RiftedVessels;
 import anightdazingzoroark.riftedvessels.server.items.RiftedVesselsItems;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.init.Blocks;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -15,13 +16,15 @@ public class RiftedVesselsBlocks {
     public static Block SHIP_HELM;
     public static Block SHIP_ENGINE;
     public static Block FLOATER;
-    //public static Block BALLOON;
+    public static Block BALLOON;
     //public static Block ANCHOR;
 
     public static void registerBlocks() {
         SHIP_HELM = registerBlock(new ShipHelmBlock(), "ship_helm", true, false, true);
         SHIP_ENGINE = registerBlock(new ShipEngineBlock(), "ship_engine", true, true,true);
         FLOATER = registerBlock(new FloaterBlock(), "floater", true, true, true);
+        BALLOON = registerBlock(new BalloonBlock(), "balloon", true, true, true);
+        Blocks.FIRE.setFireInfo(BALLOON, 30, 60);
     }
 
     private static <T extends Block> T registerBlock(T block, String registryName, boolean hasItem, boolean itemStackable, boolean canBeInCreative) {

@@ -1,6 +1,7 @@
 package anightdazingzoroark.riftedvessels.server.items;
 
 import anightdazingzoroark.riftedvessels.RiftedVessels;
+import anightdazingzoroark.riftedvessels.server.blocks.BalloonBlock;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -30,7 +31,10 @@ public class RiftedVesselsItems {
     }
 
     public static void registerBlockItem(Block block, String registryName, boolean itemStackable, boolean canBeInCreative) {
-        ItemBlock blockItem = new ItemBlock(block);
+        ItemBlock blockItem;
+        if (block instanceof BalloonBlock balloonBlock) blockItem = new BalloonItemBlock(balloonBlock);
+        else blockItem = new ItemBlock(block);
+
         if (!itemStackable) blockItem.setMaxStackSize(1);
         registerItem(blockItem, registryName, canBeInCreative);
         BLOCK_ITEMS.put(block, blockItem);

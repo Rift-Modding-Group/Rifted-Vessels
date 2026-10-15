@@ -23,7 +23,7 @@ import org.lwjgl.input.Keyboard;
  * */
 public class RiftedVesselsControls {
     public static final KeyBinding CRUISE_CONTROL = new KeyBinding("key.riftedvessels.cruise_control", Keyboard.KEY_C, RiftedVessels.MOD_NAME);
-
+    public static final KeyBinding SHIP_DESCEND = new KeyBinding("key.riftedvessels.ship_descend", Keyboard.KEY_X, RiftedVessels.MOD_NAME);
 
     @Nullable
     private static BlockPos controlledShipHelmPos;
@@ -45,9 +45,18 @@ public class RiftedVesselsControls {
         else if (input.moveStrafe < 0F) turn = -1;
         else turn = 0;
 
+        //up and down
+        int vertical;
+        boolean ascend = input.jump;
+        boolean descend = SHIP_DESCEND.isKeyDown();
+        if (ascend == descend) vertical = 0;
+        else if (ascend) vertical = 1;
+        else vertical = -1;
+
         //cancel player movement
         input.moveForward = 0f;
         input.moveStrafe = 0f;
+        input.jump = false;
 
         //exit controlled ship
         if (input.sneak) {
@@ -56,7 +65,7 @@ public class RiftedVesselsControls {
             ServerProxy.MESSAGE_WRAPPER.sendToServer(new ControlShipMessage(true));
         }
         //send controls to the ship
-        else ServerProxy.MESSAGE_WRAPPER.sendToServer(new ControlShipMessage(forward, turn));
+        else ServerProxy.MESSAGE_WRAPPER.sendToServer(new ControlShipMessage(forward, turn, vertical));
     }
 
     @SubscribeEvent

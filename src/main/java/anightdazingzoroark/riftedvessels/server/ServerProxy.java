@@ -5,6 +5,7 @@ import anightdazingzoroark.riftedvessels.client.RiftedVesselsSounds;
 import anightdazingzoroark.riftedvessels.server.blocks.RiftedVesselsBlocks;
 import anightdazingzoroark.riftedvessels.server.items.RiftedVesselsItems;
 import anightdazingzoroark.riftedvessels.server.message.*;
+import anightdazingzoroark.riftedvessels.server.tileentities.BalloonTileEntity;
 import anightdazingzoroark.riftedvessels.server.tileentities.FloaterTileEntity;
 import anightdazingzoroark.riftedvessels.server.tileentities.ShipEngineTileEntity;
 import anightdazingzoroark.riftedvessels.server.tileentities.ShipHelmTileEntity;
@@ -52,9 +53,11 @@ public class ServerProxy {
                 new ResourceLocation(RiftedVessels.MOD_ID, "ship_engine")
         );
         GameRegistry.registerTileEntity(FloaterTileEntity.class, new ResourceLocation(RiftedVessels.MOD_ID, "floater"));
+        GameRegistry.registerTileEntity(BalloonTileEntity.class, new ResourceLocation(RiftedVessels.MOD_ID, "balloon"));
 
         //---custom block weights---
         RiftedValkyriumAPI.setBlockMass(RiftedVesselsBlocks.SHIP_HELM, BlockMass.NONE);
+        RiftedValkyriumAPI.setBlockMass(RiftedVesselsBlocks.BALLOON, BlockMass.VERY_LIGHT);
     }
 
     public void postInit(FMLPostInitializationEvent event) {}

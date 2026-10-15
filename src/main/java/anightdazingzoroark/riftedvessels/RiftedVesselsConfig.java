@@ -65,4 +65,25 @@ public class RiftedVesselsConfig {
             "AABB as the basis for touching water."
     })
     public static boolean floaterMustTouchWater = true;
+
+    //---balloon---
+    @Config.Name("Minimum Balloons For Vertical Movement")
+    @Config.Comment("Number of Balloons a ship must have before its Ship Helm can control vertical movement.")
+    @Config.RangeInt(min = 1)
+    public static int shipBalloonMinimumCount = 4;
+
+    @Config.Name("Ship Balloon Vertical Acceleration")
+    @Config.Comment("Vertical acceleration in blocks per second squared while controlling a balloon ship.")
+    @Config.RangeDouble(min = 0.1D, max = 100D)
+    public static double shipBalloonVerticalAcceleration = 3D;
+
+    @Config.Name("Ship Balloon Maximum Ascent Speed")
+    @Config.Comment("Maximum upward speed in blocks per second while controlling a balloon ship.")
+    @Config.RangeDouble(min = 0.1D, max = 100D)
+    public static double shipBalloonMaximumAscentSpeed = 4D;
+
+    @Config.Name("Ship Balloon Maximum Descent Speed")
+    @Config.Comment("Maximum downward speed in blocks per second while controlling a balloon ship.")
+    @Config.RangeDouble(min = 0.1D, max = 100D)
+    public static double shipBalloonMaximumDescentSpeed = 4D;
 }

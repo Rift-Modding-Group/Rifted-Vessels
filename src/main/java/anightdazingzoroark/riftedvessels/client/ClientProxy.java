@@ -11,6 +11,7 @@ import anightdazingzoroark.riftlib.renderers.geo.GeoBlockRenderer;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
@@ -35,6 +36,15 @@ public class ClientProxy extends ServerProxy {
 
         //---item rendering---
         RiftedVesselsItems.getBlockItem(RiftedVesselsBlocks.SHIP_HELM).setTileEntityItemStackRenderer(new ShipHelmItemRenderer());
+
+        //---balloon item rendering---
+        Item balloon = RiftedVesselsItems.getBlockItem(RiftedVesselsBlocks.BALLOON);
+        for (EnumDyeColor color : EnumDyeColor.values()) {
+            ModelLoader.setCustomModelResourceLocation(
+                    balloon, color.getMetadata(),
+                    new ModelResourceLocation(RiftedVessels.MOD_ID + ":balloon_" + color.getName(), "inventory")
+            );
+        }
     }
 
     @SideOnly(Side.CLIENT)
@@ -44,20 +54,34 @@ public class ClientProxy extends ServerProxy {
 
         //---controls---
         ClientRegistry.registerKeyBinding(RiftedVesselsControls.CRUISE_CONTROL);
+        ClientRegistry.registerKeyBinding(RiftedVesselsControls.SHIP_DESCEND);
 
         //---register item models---
         for (Item item : RiftedVesselsItems.ITEMS) {
-            final String resName = item.getRegistryName().toString();
-            final ModelResourceLocation res = new ModelResourceLocation(resName, "inventory");
+            if (item == RiftedVesselsItems.getBlockItem(RiftedVesselsBlocks.BALLOON)) continue;
+            String resName = item.getRegistryName().toString();
+            ModelResourceLocation res = new ModelResourceLocation(resName, "inventory");
             Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, 0, res);
         }
 
         //---register solid block models---
         for (Block block : RiftedVesselsBlocks.BLOCKS) {
-            ModelLoader.setCustomModelResourceLocation(
-                    Item.getItemFromBlock(block), 0,
-                    new ModelResourceLocation(block.getRegistryName().toString(), "inventory")
-            );
+            //special case for ballons due to using custom metadata for colors
+            if (block == RiftedVesselsBlocks.BALLOON) {
+                for (EnumDyeColor color : EnumDyeColor.values()) {
+                    ModelLoader.setCustomModelResourceLocation(
+                            Item.getItemFromBlock(block), color.getMetadata(),
+                            new ModelResourceLocation(RiftedVessels.MOD_ID + ":balloon_" + color.getName(), "inventory")
+                    );
+                }
+            }
+            //everythin else
+            else {
+                ModelLoader.setCustomModelResourceLocation(
+                        Item.getItemFromBlock(block), 0,
+                        new ModelResourceLocation(block.getRegistryName().toString(), "inventory")
+                );
+            }
         }
 
         //---GUIs---
