@@ -12,31 +12,27 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ShipControlStateMessage extends RiftLibMessage<ShipControlStateMessage> {
-    private boolean controlling;
+    private boolean hasShipHelmPos;
     @Nullable
     private BlockPos shipHelmPos;
 
     public ShipControlStateMessage() {}
 
-    public ShipControlStateMessage(boolean controlling) {
-        this.controlling = controlling;
-    }
-
-    public ShipControlStateMessage(boolean controlling, @NotNull BlockPos shipHelmPos) {
-        this.controlling = controlling;
+    public ShipControlStateMessage(@Nullable BlockPos shipHelmPos) {
+        this.hasShipHelmPos = shipHelmPos != null;
         this.shipHelmPos = shipHelmPos;
     }
 
     @Override
     public void fromBytes(@NotNull ByteBuf buffer) {
-        this.controlling = buffer.readBoolean();
-        if (this.controlling) this.shipHelmPos = new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt());
+        this.hasShipHelmPos = buffer.readBoolean();
+        if (this.hasShipHelmPos) this.shipHelmPos = new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt());
     }
 
     @Override
     public void toBytes(@NotNull ByteBuf buffer) {
-        buffer.writeBoolean(this.controlling);
-        if (this.controlling && this.shipHelmPos != null) {
+        buffer.writeBoolean(this.hasShipHelmPos);
+        if (this.hasShipHelmPos && this.shipHelmPos != null) {
             buffer.writeInt(this.shipHelmPos.getX());
             buffer.writeInt(this.shipHelmPos.getY());
             buffer.writeInt(this.shipHelmPos.getZ());
@@ -54,6 +50,6 @@ public class ShipControlStateMessage extends RiftLibMessage<ShipControlStateMess
             @NotNull Minecraft minecraft, @NotNull ShipControlStateMessage message,
             @NotNull EntityPlayer player, @NotNull MessageContext context
     ) {
-        RiftedVesselsControls.setControllingShip(message.controlling, message.shipHelmPos);
+        RiftedVesselsControls.setControllingShip(message.shipHelmPos);
     }
 }

@@ -117,11 +117,11 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
     public static void handleControlInput(@NotNull EntityPlayerMP player, int forward, int turn, boolean stopControlling) {
         NBTTagCompound controlData = player.getEntityData();
         if (!controlData.hasUniqueId(CONTROL_SESSION_KEY)) {
-            ServerProxy.MESSAGE_WRAPPER.sendTo(new ShipControlStateMessage(false), player);
+            ServerProxy.MESSAGE_WRAPPER.sendTo(new ShipControlStateMessage(null), player);
         }
         else if (stopControlling) {
             clearControlSession(player);
-            ServerProxy.MESSAGE_WRAPPER.sendTo(new ShipControlStateMessage(false), player);
+            ServerProxy.MESSAGE_WRAPPER.sendTo(new ShipControlStateMessage(null), player);
         }
         else {
             controlData.setInteger(CONTROL_FORWARD_KEY, Math.clamp(forward, -1, 1));
@@ -201,7 +201,7 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
         UUID playerUuid = player.getUniqueID();
         if (playerUuid.equals(this.controllingPlayerUuid) && this.controllingHelm == helm) {
             if (this.controlSessionUuid != null && hasControlSession(player, this.controlSessionUuid)) {
-                ServerProxy.MESSAGE_WRAPPER.sendTo(new ShipControlStateMessage(true, helm.getPos()), player);
+                ServerProxy.MESSAGE_WRAPPER.sendTo(new ShipControlStateMessage(helm.getPos()), player);
                 return;
             }
             this.stopControlling();
@@ -223,7 +223,7 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
         float yaw = (float) Math.toDegrees(Math.atan2(-globalForward.x, globalForward.z));
         player.rotationYaw = yaw;
         player.setRotationYawHead(yaw);
-        ServerProxy.MESSAGE_WRAPPER.sendTo(new ShipControlStateMessage(true, helm.getPos()), player);
+        ServerProxy.MESSAGE_WRAPPER.sendTo(new ShipControlStateMessage(helm.getPos()), player);
     }
 
     public void stopControlling(@NotNull ShipHelmTileEntity helm) {
@@ -247,7 +247,7 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
         EntityPlayerMP player = serverWorld.getMinecraftServer().getPlayerList().getPlayerByUUID(playerUuid);
         if (player != null && hasControlSession(player, sessionUuid)) {
             clearControlSession(player);
-            ServerProxy.MESSAGE_WRAPPER.sendTo(new ShipControlStateMessage(false), player);
+            ServerProxy.MESSAGE_WRAPPER.sendTo(new ShipControlStateMessage(null), player);
         }
     }
 

@@ -23,13 +23,14 @@ import org.lwjgl.input.Keyboard;
  * */
 public class RiftedVesselsControls {
     public static final KeyBinding CRUISE_CONTROL = new KeyBinding("key.riftedvessels.cruise_control", Keyboard.KEY_C, RiftedVessels.MOD_NAME);
-    private static boolean controllingShip;
+
+
     @Nullable
     private static BlockPos controlledShipHelmPos;
 
     @SubscribeEvent
     public void onInputUpdate(@NotNull InputUpdateEvent event) {
-        if (!controllingShip) return;
+        if (controlledShipHelmPos == null) return;
 
         //forward and back
         MovementInput input = event.getMovementInput();
@@ -51,7 +52,7 @@ public class RiftedVesselsControls {
         //exit controlled ship
         if (input.sneak) {
             input.sneak = false;
-            setControllingShip(false, null);
+            setControllingShip(null);
             ServerProxy.MESSAGE_WRAPPER.sendToServer(new ControlShipMessage(true));
         }
         //send controls to the ship
@@ -60,7 +61,7 @@ public class RiftedVesselsControls {
 
     @SubscribeEvent
     public void onKeyInput(@NotNull InputEvent.KeyInputEvent event) {
-        if (!CRUISE_CONTROL.isPressed() || !controllingShip || controlledShipHelmPos == null) return;
+        if (!CRUISE_CONTROL.isPressed() || controlledShipHelmPos == null) return;
 
         Minecraft minecraft = Minecraft.getMinecraft();
         if (minecraft.player == null || minecraft.world == null) return;
@@ -82,8 +83,7 @@ public class RiftedVesselsControls {
         ServerProxy.MESSAGE_WRAPPER.sendToServer(new CruiseControlShipMessage(cruiseControl, controlledShipHelmPos));
     }
 
-    public static void setControllingShip(boolean controlling, @Nullable BlockPos shipHelmPos) {
-        controllingShip = controlling;
-        controlledShipHelmPos = controlling ? shipHelmPos : null;
+    public static void setControllingShip(@Nullable BlockPos shipHelmPos) {
+        controlledShipHelmPos = shipHelmPos;
     }
 }
