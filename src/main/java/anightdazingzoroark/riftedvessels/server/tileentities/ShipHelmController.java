@@ -18,7 +18,7 @@ import valkyrienwarfare.api.IShipData;
 import valkyrienwarfare.api.IShipMaintenanceProvider;
 import valkyrienwarfare.api.TransformType;
 import valkyrienwarfare.api.forces.IShipForces;
-import valkyrienwarfare.api.forces.ShipForcesInducer;
+import valkyrienwarfare.api.forces.IShipForcesInducer;
 
 import java.util.Collections;
 import java.util.Map;
@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Owns all ship-wide Helm state and applies one set of forces per ship.
  * */
-public class ShipHelmController implements ShipForcesInducer, IShipMaintenanceProvider {
+public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceProvider {
     private static final String CONTROL_SESSION_KEY = "RiftedVesselsShipHelmSession";
     private static final String CONTROL_FORWARD_KEY = "RiftedVesselsShipHelmForward";
     private static final String CONTROL_TURN_KEY = "RiftedVesselsShipHelmTurn";

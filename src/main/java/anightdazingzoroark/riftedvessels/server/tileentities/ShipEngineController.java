@@ -9,7 +9,7 @@ import org.joml.Vector3dc;
 import valkyrienwarfare.api.IPhysicsEntity;
 import valkyrienwarfare.api.IShipData;
 import valkyrienwarfare.api.forces.IShipForces;
-import valkyrienwarfare.api.forces.ShipForcesInducer;
+import valkyrienwarfare.api.forces.IShipForcesInducer;
 
 import java.util.Collections;
 import java.util.Map;
@@ -21,9 +21,9 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Collects all engines on one ship and boosts its existing horizontal movement.
  */
-public class ShipEngineController implements ShipForcesInducer {
+public class ShipEngineController implements IShipForcesInducer {
     private static final double MINIMUM_BOOST_SPEED = 0.05D;
-    private static final double MOVEMENT_CHANGE_THRESHOLD_PER_SECOND = 0.05D;
+    private static final double MINIMUM_PROPULSION_FORCE = 0.01D;
     private static final Map<World, Map<UUID, ShipEngineController>> CONTROLLERS_BY_WORLD = Collections.synchronizedMap(new WeakHashMap<>());
 
     private final World world;
@@ -37,10 +37,6 @@ public class ShipEngineController implements ShipForcesInducer {
     private volatile int burningEngineCount;
     private volatile double accelerationPerEngine;
     private volatile double maximumSpeed;
-    private volatile boolean movementObserved;
-    private volatile boolean movementBoostActive;
-    private volatile double previousHorizontalSpeed;
-    private volatile int previousBurningEngineCount;
 
     private ShipEngineController(@NotNull IPhysicsEntity ship) {
         this.world = ship.getWorld();
@@ -86,7 +82,6 @@ public class ShipEngineController implements ShipForcesInducer {
         this.attached = false;
         this.burningEngineCount = 0;
         this.maximumSpeed = 0D;
-        this.resetMovementTracking();
         IPhysicsEntity previousShip = this.ship;
         this.ship = null;
         if (previousShip != null) previousShip.removeForceInducer(this);
@@ -122,7 +117,6 @@ public class ShipEngineController implements ShipForcesInducer {
         IPhysicsEntity forceShip = forces.getShip();
         IShipData shipData = forceShip.getShipData();
         if (!this.attached || this.ship != forceShip || forceShip.isDeconstructing() || forceShip.isShipAligningToGrid() || !shipData.isPhysicsEnabled()) {
-            this.resetMovementTracking();
             return;
         }
 
@@ -131,55 +125,25 @@ public class ShipEngineController implements ShipForcesInducer {
         double configuredMaximumSpeed = this.maximumSpeed;
         int activeEngines = this.burningEngineCount;
         if (mass <= 0D || activeEngines <= 0 || configuredAcceleration <= 0D || configuredMaximumSpeed <= 0D) {
-            this.resetMovementTracking();
             return;
         }
 
-        double timeStep = forces.getTimeStepSeconds();
-        if (timeStep <= 0D) return;
         Vector3dc linearVelocity = shipData.getLinearVelocity();
         double horizontalSpeed = Math.sqrt(linearVelocity.x() * linearVelocity.x() + linearVelocity.z() * linearVelocity.z());
-        if (activeEngines != this.previousBurningEngineCount) {
-            this.movementObserved = false;
-            this.previousBurningEngineCount = activeEngines;
-        }
-        this.updateMovementBoostState(horizontalSpeed, timeStep);
-        if (!this.movementBoostActive || horizontalSpeed >= configuredMaximumSpeed) return;
+        if (horizontalSpeed < MINIMUM_BOOST_SPEED || horizontalSpeed >= configuredMaximumSpeed) return;
 
         double directionX = linearVelocity.x() / horizontalSpeed;
         double directionZ = linearVelocity.z() / horizontalSpeed;
+        Vector3dc worldForce = forces.getWorldForce();
+        double propulsionForce = worldForce.x() * directionX + worldForce.z() * directionZ;
+        if (propulsionForce < MINIMUM_PROPULSION_FORCE) return;
+
         double forceMagnitude = mass * configuredAcceleration * activeEngines;
-        forces.applyWorldForce(new Vec3d(
-                directionX * forceMagnitude,
-                0D,
-                directionZ * forceMagnitude
-        ));
+        forces.applyWorldForce(new Vec3d(directionX * forceMagnitude, 0D, directionZ * forceMagnitude));
     }
 
-    private void updateMovementBoostState(double horizontalSpeed, double timeStep) {
-        if (horizontalSpeed < MINIMUM_BOOST_SPEED) {
-            this.movementObserved = true;
-            this.movementBoostActive = false;
-            this.previousHorizontalSpeed = horizontalSpeed;
-        }
-        else if (!this.movementObserved) {
-            this.movementObserved = true;
-            this.movementBoostActive = true;
-            this.previousHorizontalSpeed = horizontalSpeed;
-        }
-        else {
-            double speedChange = horizontalSpeed - this.previousHorizontalSpeed;
-            double movementChangeThreshold = MOVEMENT_CHANGE_THRESHOLD_PER_SECOND * timeStep;
-            if (speedChange < -movementChangeThreshold) this.movementBoostActive = false;
-            else if (speedChange > movementChangeThreshold) this.movementBoostActive = true;
-            this.previousHorizontalSpeed = horizontalSpeed;
-        }
-    }
-
-    private void resetMovementTracking() {
-        this.movementObserved = false;
-        this.movementBoostActive = false;
-        this.previousHorizontalSpeed = 0D;
-        this.previousBurningEngineCount = 0;
+    @Override
+    public int getForceApplicationPriority() {
+        return 100;
     }
 }

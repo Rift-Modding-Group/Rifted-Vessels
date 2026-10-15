@@ -13,10 +13,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldServer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import valkyrienwarfare.api.IPhysicsEntity;
-import valkyrienwarfare.api.IShipData;
-import valkyrienwarfare.api.RiftedValkyriumAPI;
-import valkyrienwarfare.api.TransformType;
+import valkyrienwarfare.api.*;
 
 import java.util.Optional;
 
@@ -57,7 +54,9 @@ public class ShipHelmTileEntity extends RiftTileEntity implements ITickable {
             //assemble
             if (this.assemblyRequested && this.world instanceof WorldServer serverWorld) {
                 this.assemblyRequested = false;
-                RiftedValkyriumAPI.createNewShip(serverWorld, this.pos, RiftedVesselsUtil.getBlockBlacklist(), true);
+                RiftedValkyriumAPI.createNewShip(
+                        serverWorld, this.pos, new ShipBuildOptions().setShipBlockBlacklist(RiftedVesselsUtil.getBlockBlacklist()).setPhysicsEnabled()
+                );
             }
         }
         else {

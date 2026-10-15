@@ -13,7 +13,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3dc;
 import valkyrienwarfare.api.IPhysicsEntity;
 import valkyrienwarfare.api.RiftedValkyriumAPI;
 
@@ -29,13 +28,7 @@ public class ShipEngineTileEntity extends RiftTileEntityContainer implements ITi
 
         //find a ship
         Optional<IPhysicsEntity> ship = RiftedValkyriumAPI.getPhysoManagingBlock(this.world, this.pos);
-        if (ship.isPresent()) {
-            this.setControllerShip(ship.get());
-
-            //(debug) show magnitude of speed
-            Vector3dc shipSpeed = ship.get().getShipData().getLinearVelocity();
-            System.out.println("ship speed magnitude: "+shipSpeed.length());
-        }
+        if (ship.isPresent()) this.setControllerShip(ship.get());
         else this.clearController();
 
         //update burning
