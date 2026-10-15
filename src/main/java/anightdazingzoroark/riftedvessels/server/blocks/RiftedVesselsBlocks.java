@@ -3,6 +3,7 @@ package anightdazingzoroark.riftedvessels.server.blocks;
 import anightdazingzoroark.riftedvessels.RiftedVessels;
 import anightdazingzoroark.riftedvessels.server.items.RiftedVesselsItems;
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -12,9 +13,14 @@ import java.util.List;
 public class RiftedVesselsBlocks {
     private static final List<Block> BLOCKS = new ArrayList<>();
     public static Block SHIP_HELM;
+    public static Block SHIP_ENGINE;
+    //public static Block FLOATER;
+    //public static Block BALLOON;
+    //public static Block ANCHOR;
 
     public static void registerBlocks() {
         SHIP_HELM = registerBlock(new ShipHelmBlock(), "ship_helm", true, true);
+        //SHIP_ENGINE = registerBlock(new Block(Material.ROCK), "ship_engine", true, true);
     }
 
     private static <T extends Block> T registerBlock(T block, String registryName, boolean hasItem, boolean canBeInCreative) {

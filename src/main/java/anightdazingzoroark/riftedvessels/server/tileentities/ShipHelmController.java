@@ -201,7 +201,7 @@ public class ShipHelmController implements ShipForcesInducer, IShipMaintenancePr
         UUID playerUuid = player.getUniqueID();
         if (playerUuid.equals(this.controllingPlayerUuid) && this.controllingHelm == helm) {
             if (this.controlSessionUuid != null && hasControlSession(player, this.controlSessionUuid)) {
-                ServerProxy.MESSAGE_WRAPPER.sendTo(new ShipControlStateMessage(true), player);
+                ServerProxy.MESSAGE_WRAPPER.sendTo(new ShipControlStateMessage(true, helm.getPos()), player);
                 return;
             }
             this.stopControlling();
@@ -223,7 +223,7 @@ public class ShipHelmController implements ShipForcesInducer, IShipMaintenancePr
         float yaw = (float) Math.toDegrees(Math.atan2(-globalForward.x, globalForward.z));
         player.rotationYaw = yaw;
         player.setRotationYawHead(yaw);
-        ServerProxy.MESSAGE_WRAPPER.sendTo(new ShipControlStateMessage(true), player);
+        ServerProxy.MESSAGE_WRAPPER.sendTo(new ShipControlStateMessage(true, helm.getPos()), player);
     }
 
     public void stopControlling(@NotNull ShipHelmTileEntity helm) {

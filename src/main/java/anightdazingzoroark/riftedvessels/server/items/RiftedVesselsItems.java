@@ -16,8 +16,7 @@ import java.util.Map;
 public class RiftedVesselsItems {
     public static final List<Item> ITEMS = new ArrayList<>();
     public static final Map<Block, ItemBlock> BLOCK_ITEMS = new HashMap<>();
-
-
+    
     public static ItemBlock getBlockItem(Block block) {
         return BLOCK_ITEMS.get(block);
     }

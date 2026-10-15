@@ -1,3 +1,5 @@
+key.riftedvessels.cruise_control=Alternar crucero
+
 tile.riftedvessels.ship_helm.name=Timón
 tile.riftedvessels.ship_helm.tooltip=¡Usa esto para armar y controlar barcos!
 
@@ -19,3 +21,5 @@ warning.riftedvessels.helm_occupied=¡Alguien más ya está controlando este bar
 warning.riftedvessels.not_on_ship=¡Párate sobre este barco antes de controlarlo!
 warning.riftedvessels.too_far_from_helm=¡Acércate al timón antes de controlarlo!
 warning.riftedvessels.ship_aligning=El barco está alineándose, ¡no se puede controlar!
+warning.riftedvessels.cruise_control_enabled=Activando control de crucero...
+warning.riftedvessels.cruise_control_disabled=Desactivando control de crucero...

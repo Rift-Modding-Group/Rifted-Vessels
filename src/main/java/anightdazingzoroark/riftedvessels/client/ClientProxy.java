@@ -12,12 +12,16 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ClientProxy extends ServerProxy {
+    @SideOnly(Side.CLIENT)
     @Override
     public void preInit(FMLPreInitializationEvent event) {
         super.preInit(event);
@@ -31,9 +35,13 @@ public class ClientProxy extends ServerProxy {
         RiftedVesselsItems.getBlockItem(RiftedVesselsBlocks.SHIP_HELM).setTileEntityItemStackRenderer(new ShipHelmItemRenderer());
     }
 
+    @SideOnly(Side.CLIENT)
     @Override
     public void init(FMLInitializationEvent event) {
         super.init(event);
+
+        //---controls---
+        ClientRegistry.registerKeyBinding(RiftedVesselsControls.CRUISE_CONTROL);
 
         //---register item models---
         for (Item item : RiftedVesselsItems.ITEMS) {
@@ -46,6 +54,7 @@ public class ClientProxy extends ServerProxy {
         NetworkRegistry.INSTANCE.registerGuiHandler(RiftedVessels.INSTANCE, new RiftedVesselsGuiHandler());
     }
 
+    @SideOnly(Side.CLIENT)
     @Override
     public void postInit(FMLPostInitializationEvent event) {
         super.postInit(event);

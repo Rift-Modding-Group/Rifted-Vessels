@@ -62,15 +62,6 @@ public class ShipHelmBlock extends BlockHorizontal implements ITileEntityProvide
     }
 
     @Override
-    public IBlockState getStateForPlacement(
-            World worldIn, BlockPos pos, EnumFacing facing,
-            float hitX, float hitY, float hitZ, int meta,
-            EntityLivingBase placer
-    ) {
-        return this.getDefaultState().withProperty(FACING, placer.getHorizontalFacing().getOpposite());
-    }
-
-    @Override
     public boolean onBlockActivated(
             World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
             EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ
@@ -126,6 +117,16 @@ public class ShipHelmBlock extends BlockHorizontal implements ITileEntityProvide
         super.breakBlock(worldIn, pos, state);
     }
 
+    //-----block facing stuff begins here-----
+    @Override
+    public IBlockState getStateForPlacement(
+            World worldIn, BlockPos pos, EnumFacing facing,
+            float hitX, float hitY, float hitZ, int meta,
+            EntityLivingBase placer
+    ) {
+        return this.getDefaultState().withProperty(FACING, placer.getHorizontalFacing().getOpposite());
+    }
+
     @Override
     public IBlockState getStateFromMeta(int meta) {
         EnumFacing facing = EnumFacing.byIndex(meta);
@@ -154,6 +155,7 @@ public class ShipHelmBlock extends BlockHorizontal implements ITileEntityProvide
     protected BlockStateContainer createBlockState() {
         return new BlockStateContainer(this, FACING);
     }
+    //-----block facing stuff ends here-----
 
     @Override
     @Nullable

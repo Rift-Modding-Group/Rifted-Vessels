@@ -1,3 +1,5 @@
+key.riftedvessels.cruise_control=Toggle cruise control
+
 tile.riftedvessels.ship_helm.name=Ship Helm
 tile.riftedvessels.ship_helm.tooltip=Use this to build and control ships!
 
@@ -19,3 +21,5 @@ warning.riftedvessels.helm_occupied=Someone else is already controlling this shi
 warning.riftedvessels.not_on_ship=Stand on this ship before controlling it!
 warning.riftedvessels.too_far_from_helm=Move closer to the helm before controlling it!
 warning.riftedvessels.ship_aligning=The ship is aligning, it cannot be controlled!
+warning.riftedvessels.cruise_control_enabled=Enabling cruise control...
+warning.riftedvessels.cruise_control_disabled=Disabling cruise control...
