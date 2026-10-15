@@ -4,6 +4,9 @@ tile.riftedvessels.ship_helm.name=Timón
 tile.riftedvessels.ship_helm.tooltip=¡Usa esto para armar y controlar barcos!
 tile.riftedvessels.ship_engine.name=Motor de barco
 tile.riftedvessels.ship_engine.tooltip=¡Pon esto en un barco para aumentar su velocidad! Necesita combustible.
+tile.riftedvessels.floater.name=Flotador
+tile.riftedvessels.floater.tooltip_one=Pon esto para aplicar mas flotabilidad en tu barco.
+tile.riftedvessels.floater.tooltip_two=La flotabilidad se puede reducir o desactivar al alimentarle una señal de redstone.
 
 gui.riftedvessels.ship_helm=Timón
 gui.riftedvessels.ship_helm.assemble=Armar

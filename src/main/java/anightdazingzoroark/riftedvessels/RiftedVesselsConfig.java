@@ -4,6 +4,7 @@ import net.minecraftforge.common.config.Config;
 
 @Config(modid = RiftedVessels.MOD_ID)
 public class RiftedVesselsConfig {
+    //---helm---
     @Config.Name("Ship Helm Acceleration")
     @Config.Comment("Horizontal acceleration in blocks per second squared while piloting with a Ship Helm.")
     @Config.RangeDouble(min = 0.1D, max = 100D)
@@ -13,21 +14,6 @@ public class RiftedVesselsConfig {
     @Config.Comment("Maximum horizontal speed in blocks per second while piloting with a Ship Helm.")
     @Config.RangeDouble(min = 0.1D, max = 1000D)
     public static double shipHelmMaximumSpeed = 12D;
-
-    @Config.Name("Ship Engine Speed Bonus")
-    @Config.Comment("Additional maximum speed in blocks per second provided by each burning Ship Engine.")
-    @Config.RangeDouble(min = 0D, max = 100D)
-    public static double shipEngineSpeedBonus = 2D;
-
-    @Config.Name("Ship Engine Maximum Speed Bonus")
-    @Config.Comment("Maximum combined speed bonus in blocks per second that burning Ship Engines can provide to a ship.")
-    @Config.RangeDouble(min = 0D, max = 1000D)
-    public static double shipEngineMaximumSpeedBonus = 20D;
-
-    @Config.Name("Ship Engine Acceleration")
-    @Config.Comment("Acceleration in blocks per second squared provided by each burning Ship Engine.")
-    @Config.RangeDouble(min = 0D, max = 100D)
-    public static double shipEngineAcceleration = 1D;
 
     @Config.Name("Ship Helm Turn Acceleration")
     @Config.Comment("Turning acceleration in degrees per second squared while piloting with a Ship Helm.")
@@ -49,4 +35,34 @@ public class RiftedVesselsConfig {
             "minecraft:bedrock", "minecraft:end_portal_frame", "minecraft:end_portal",
             "minecraft:end_gateway", "minecraft:portal",
     };
+
+    //---engine---
+    @Config.Name("Ship Engine Speed Bonus")
+    @Config.Comment("Additional maximum speed in blocks per second provided by each burning Ship Engine.")
+    @Config.RangeDouble(min = 0D, max = 100D)
+    public static double shipEngineSpeedBonus = 2D;
+
+    @Config.Name("Ship Engine Maximum Speed Bonus")
+    @Config.Comment("Maximum combined speed bonus in blocks per second that burning Ship Engines can provide to a ship.")
+    @Config.RangeDouble(min = 0D, max = 1000D)
+    public static double shipEngineMaximumSpeedBonus = 20D;
+
+    @Config.Name("Ship Engine Acceleration")
+    @Config.Comment("Acceleration in blocks per second squared provided by each burning Ship Engine.")
+    @Config.RangeDouble(min = 0D, max = 100D)
+    public static double shipEngineAcceleration = 1D;
+
+    //---floater---
+    @Config.Name("Floater Buoyancy")
+    @Config.Comment("Force of the buoyancy in Newtons provided by a floater.")
+    @Config.RangeInt(min = 0)
+    public static int floaterBuoyancy = 160000;
+
+    @Config.Name("Floaters Must Touch Water To Apply Buoyancy")
+    @Config.Comment({
+            "Whether or not floaters must touch water to apply buoyancy.",
+            "If false, the floater will use its position + the bottom of a ship's",
+            "AABB as the basis for touching water."
+    })
+    public static boolean floaterMustTouchWater = true;
 }

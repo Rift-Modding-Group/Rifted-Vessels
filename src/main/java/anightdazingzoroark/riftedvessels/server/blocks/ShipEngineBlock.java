@@ -4,6 +4,7 @@ import anightdazingzoroark.riftedvessels.client.RiftedVesselsSounds;
 import anightdazingzoroark.riftedvessels.server.tileentities.ShipEngineTileEntity;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.ITileEntityProvider;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.BlockStateContainer;
@@ -32,6 +33,7 @@ public class ShipEngineBlock extends BlockHorizontal implements ITileEntityProvi
 
     public ShipEngineBlock() {
         super(Material.ROCK);
+        this.setSoundType(SoundType.STONE);
         this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(BURNING, false));
     }
 

@@ -29,8 +29,9 @@ public class RiftedVesselsItems {
         return item;
     }
 
-    public static void registerBlockItem(Block block, String registryName, boolean canBeInCreative) {
+    public static void registerBlockItem(Block block, String registryName, boolean itemStackable, boolean canBeInCreative) {
         ItemBlock blockItem = new ItemBlock(block);
+        if (!itemStackable) blockItem.setMaxStackSize(1);
         registerItem(blockItem, registryName, canBeInCreative);
         BLOCK_ITEMS.put(block, blockItem);
     }

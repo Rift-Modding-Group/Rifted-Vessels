@@ -5,6 +5,7 @@ import anightdazingzoroark.riftedvessels.server.message.OpenShipHelmGuiMessage;
 import anightdazingzoroark.riftedvessels.server.tileentities.ShipHelmTileEntity;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.ITileEntityProvider;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -38,6 +39,7 @@ public class ShipHelmBlock extends BlockHorizontal implements ITileEntityProvide
 
     public ShipHelmBlock() {
         super(Material.WOOD);
+        this.setSoundType(SoundType.WOOD);
         this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH));
     }
 
