@@ -1,5 +1,6 @@
 package anightdazingzoroark.riftedvessels.server.blocks;
 
+import anightdazingzoroark.riftedvessels.client.RiftedVesselsSounds;
 import anightdazingzoroark.riftedvessels.server.tileentities.ShipEngineTileEntity;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.ITileEntityProvider;
@@ -12,17 +13,18 @@ import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Random;
 
 @SuppressWarnings("deprecation")
 public class ShipEngineBlock extends BlockHorizontal implements ITileEntityProvider {
@@ -53,7 +55,7 @@ public class ShipEngineBlock extends BlockHorizontal implements ITileEntityProvi
                 serverPlayer.inventoryContainer.detectAndSendChanges();
                 worldIn.playSound(
                         null, pos.getX(), pos.getY(), pos.getZ(),
-                        SoundEvents.ENTITY_BLAZE_SHOOT, SoundCategory.BLOCKS, 1F, 1F
+                        RiftedVesselsSounds.SHIP_ENGINE_IGNITE, SoundCategory.BLOCKS, 1F, 1F
                 );
             }
         }
@@ -63,9 +65,57 @@ public class ShipEngineBlock extends BlockHorizontal implements ITileEntityProvi
             if (!removedFuel.isEmpty()) {
                 if (!serverPlayer.addItemStackToInventory(removedFuel)) serverPlayer.dropItem(removedFuel, false);
                 serverPlayer.inventoryContainer.detectAndSendChanges();
+                worldIn.playSound(
+                        null, pos.getX(), pos.getY(), pos.getZ(),
+                        RiftedVesselsSounds.SHIP_ENGINE_REMOVE_FUEL, SoundCategory.BLOCKS, 0.2f,
+                        ((worldIn.rand.nextFloat() - worldIn.rand.nextFloat()) * 0.7f + 1f) * 2f
+                );
             }
         }
         return true;
+    }
+
+    @Override
+    public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos) {
+        return state.getValue(BURNING) ? 13 : 0;
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void randomDisplayTick(IBlockState state, World worldIn, BlockPos pos, Random random) {
+        if (!state.getValue(BURNING)) return;
+
+        EnumFacing facing = state.getValue(FACING);
+        double particleX = pos.getX() + 0.5;
+        double particleY = pos.getY() + random.nextDouble() * 6.0 / 16.0;
+        double particleZ = pos.getZ() + 0.5;
+        double faceOffset = 0.52;
+        double lateralOffset = random.nextDouble() * 0.6 - 0.3;
+
+        switch (facing) {
+            case WEST -> {
+                particleX -= faceOffset;
+                particleZ += lateralOffset;
+            }
+            case EAST -> {
+                particleX += faceOffset;
+                particleZ += lateralOffset;
+            }
+            case NORTH -> {
+                particleX += lateralOffset;
+                particleZ -= faceOffset;
+            }
+            case SOUTH -> {
+                particleX += lateralOffset;
+                particleZ += faceOffset;
+            }
+            default -> {
+                return;
+            }
+        }
+
+        worldIn.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, particleX, particleY, particleZ, 0, 0, 0);
+        worldIn.spawnParticle(EnumParticleTypes.FLAME, particleX, particleY, particleZ, 0, 0, 0);
     }
 
     @Override

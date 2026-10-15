@@ -1,6 +1,7 @@
 package anightdazingzoroark.riftedvessels.server;
 
 import anightdazingzoroark.riftedvessels.RiftedVessels;
+import anightdazingzoroark.riftedvessels.client.RiftedVesselsSounds;
 import anightdazingzoroark.riftedvessels.server.blocks.RiftedVesselsBlocks;
 import anightdazingzoroark.riftedvessels.server.items.RiftedVesselsItems;
 import anightdazingzoroark.riftedvessels.server.message.*;
@@ -36,6 +37,7 @@ public class ServerProxy {
         //---events---
         MinecraftForge.EVENT_BUS.register(new RiftedVesselsBlocks());
         MinecraftForge.EVENT_BUS.register(new RiftedVesselsItems());
+        MinecraftForge.EVENT_BUS.register(new RiftedVesselsSounds());
     }
 
     public void init(FMLInitializationEvent event) {

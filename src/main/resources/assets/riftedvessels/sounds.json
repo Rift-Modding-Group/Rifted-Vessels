@@ -4,5 +4,10 @@
       "mob/ghast/fireball4"
     ],
     "subtitle": "subtitles.block.riftedvessels.shipengine.ignite"
+  },
+  "block.riftedvessels.shipengine.remove_fuel": {
+    "sounds": [
+      "random/pop"
+    ]
   }
 }
