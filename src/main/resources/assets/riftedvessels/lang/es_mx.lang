@@ -25,6 +25,8 @@ tile.riftedvessels.balloon.brown.name=Globo marrón
 tile.riftedvessels.balloon.green.name=Globo verde
 tile.riftedvessels.balloon.red.name=Globo rojo
 tile.riftedvessels.balloon.black.name=Globo negro
+tile.riftedvessels.anchor.name=Ancla
+tile.riftedvessels.anchor.tooltip=Pon esta en un barco para frenar su movimiento al alimentarle una señal de redstone.
 
 gui.riftedvessels.ship_helm=Timón
 gui.riftedvessels.ship_helm.assemble=Armar

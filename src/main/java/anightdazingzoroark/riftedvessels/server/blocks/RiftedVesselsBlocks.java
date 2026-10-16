@@ -17,13 +17,15 @@ public class RiftedVesselsBlocks {
     public static Block SHIP_ENGINE;
     public static Block FLOATER;
     public static Block BALLOON;
-    //public static Block ANCHOR;
+    public static Block ANCHOR;
 
     public static void registerBlocks() {
         SHIP_HELM = registerBlock(new ShipHelmBlock(), "ship_helm", true, false, true);
         SHIP_ENGINE = registerBlock(new ShipEngineBlock(), "ship_engine", true, true,true);
         FLOATER = registerBlock(new FloaterBlock(), "floater", true, true, true);
         BALLOON = registerBlock(new BalloonBlock(), "balloon", true, true, true);
+        ANCHOR = registerBlock(new AnchorBlock(), "anchor", true, false, true);
+
         Blocks.FIRE.setFireInfo(BALLOON, 30, 60);
     }
 

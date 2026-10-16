@@ -25,6 +25,8 @@ tile.riftedvessels.balloon.brown.name=Brown Balloon
 tile.riftedvessels.balloon.green.name=Green Balloon
 tile.riftedvessels.balloon.red.name=Red Balloon
 tile.riftedvessels.balloon.black.name=Black Balloon
+tile.riftedvessels.anchor.name=Anchor
+tile.riftedvessels.anchor.tooltip=Put this on a ship to disable its movement by supplying a redstone signal.
 
 gui.riftedvessels.ship_helm=Ship Helm
 gui.riftedvessels.ship_helm.assemble=Assemble
