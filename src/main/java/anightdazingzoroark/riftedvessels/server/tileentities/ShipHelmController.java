@@ -36,7 +36,6 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
     //reduce a specific amnt of velocity per second to make ship stopping smoother
     private static final double RELEASED_VELOCITY_RETENTION_PER_SECOND = 0.5D;
     private static final double RELEASED_FORWARD_VELOCITY_STOP_THRESHOLD = 0.01D;
-    private static final double RELEASED_TURN_VELOCITY_STOP_THRESHOLD = 0.001D;
     private static final Vec3d WORLD_UP = new Vec3d(0D, 1D, 0D);
     private static final double MIN_STABILIZATION_ERROR = 1E-6D;
     //increase this value to make ship more stable
@@ -473,13 +472,15 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
 
         Vector3dc angularVelocity = shipData.getAngularVelocity();
         double yawVelocity = angularVelocity.y();
-        if (Math.abs(yawVelocity) <= RELEASED_TURN_VELOCITY_STOP_THRESHOLD) return false;
+        double maximumDeceleration = Math.toRadians(RiftedVesselsConfig.shipHelmTurnAcceleration);
+        if (maximumDeceleration <= 0D) return false;
 
         double yawMomentOfInertia = this.getWorldYawMomentOfInertia(forces.getShip(), shipData, mass);
-        double retainedVelocity = Math.pow(RELEASED_VELOCITY_RETENTION_PER_SECOND, timeStep);
-        double cancellingTorque = yawMomentOfInertia * yawVelocity * (retainedVelocity - 1D) / timeStep;
+        double requiredDeceleration = -yawVelocity / timeStep;
+        double appliedDeceleration = Math.clamp(requiredDeceleration, -maximumDeceleration, maximumDeceleration);
+        double cancellingTorque = yawMomentOfInertia * appliedDeceleration;
         forces.applyWorldTorque(new Vec3d(0D, cancellingTorque, 0D));
-        return true;
+        return Math.abs(requiredDeceleration) > maximumDeceleration;
     }
 
     //apply forward/backward ship movement

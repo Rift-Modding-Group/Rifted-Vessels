@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "LIL",
+    " I ",
+    "IBI"
+  ],
+  "key": {
+    "L": {
+      "item": "minecraft:lead"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "B": {
+      "item": "minecraft:iron_block"
+    }
+  },
+  "result": {
+    "item": "riftedvessels:anchor"
+  }
+}

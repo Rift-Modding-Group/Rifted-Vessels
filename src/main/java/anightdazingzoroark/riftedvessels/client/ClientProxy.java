@@ -1,7 +1,9 @@
 package anightdazingzoroark.riftedvessels.client;
 
 import anightdazingzoroark.riftedvessels.RiftedVessels;
+import anightdazingzoroark.riftedvessels.client.renderer.block.AnchorBlockRenderer;
 import anightdazingzoroark.riftedvessels.client.renderer.block.ShipHelmBlockRenderer;
+import anightdazingzoroark.riftedvessels.client.renderer.item.AnchorItemRenderer;
 import anightdazingzoroark.riftedvessels.client.renderer.item.ShipHelmItemRenderer;
 import anightdazingzoroark.riftedvessels.server.ServerProxy;
 import anightdazingzoroark.riftedvessels.server.blocks.RiftedVesselsBlocks;
@@ -33,9 +35,11 @@ public class ClientProxy extends ServerProxy {
 
         //---block rendering---
         GeoBlockRenderer.registerBlockRenderer(RiftedVesselsBlocks.SHIP_HELM, new ShipHelmBlockRenderer());
+        GeoBlockRenderer.registerBlockRenderer(RiftedVesselsBlocks.ANCHOR, new AnchorBlockRenderer());
 
         //---item rendering---
         RiftedVesselsItems.getBlockItem(RiftedVesselsBlocks.SHIP_HELM).setTileEntityItemStackRenderer(new ShipHelmItemRenderer());
+        RiftedVesselsItems.getBlockItem(RiftedVesselsBlocks.ANCHOR).setTileEntityItemStackRenderer(new AnchorItemRenderer());
 
         //---balloon item rendering---
         Item balloon = RiftedVesselsItems.getBlockItem(RiftedVesselsBlocks.BALLOON);
