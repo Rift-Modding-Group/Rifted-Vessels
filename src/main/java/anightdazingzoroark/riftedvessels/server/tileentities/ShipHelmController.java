@@ -308,6 +308,7 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
         this.cruiseControlling = false;
         this.stopControlling();
         this.aligning = true;
+        this.ship.getShipData().setPhysicsEnabled(true);
         this.ship.setShipAligningToGrid(true);
         this.ship.setDeconstruct(true);
         this.synchronizeHelms();

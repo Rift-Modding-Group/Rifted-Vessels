@@ -19,7 +19,8 @@ public class AnchorTileEntity extends TileEntity implements ITickable {
         //apply redstone to stop ship movement
         if (this.ship != null) {
             int redstonePower = Math.max(0, this.world.getRedstonePowerFromNeighbors(this.pos));
-            this.ship.getShipData().setPhysicsEnabled(redstonePower == 0);
+            boolean physicsEnabled = this.ship.isDeconstructing() || redstonePower == 0;
+            this.ship.getShipData().setPhysicsEnabled(physicsEnabled);
         }
 
         //normal ship getting/setting beyond

@@ -43,6 +43,7 @@ public class ShipHelmGui extends GuiScreen {
     private GuiButton cruiseControlButton;
     private boolean assemblyRequested;
     private boolean invalidAssemblyBlock;
+    private boolean cannotAlignCruiseControl;
     private int missingHelmTicks;
 
     public ShipHelmGui(@NotNull World world, @NotNull BlockPos shipHelmPos, boolean assemblyRequested) {
@@ -107,11 +108,20 @@ public class ShipHelmGui extends GuiScreen {
         int titleX = (this.width - this.fontRenderer.getStringWidth(title)) / 2;
         this.fontRenderer.drawString(title, titleX, guiTop + 12, 0x404040);
         super.drawScreen(mouseX, mouseY, partialTicks);
+
+        //invalid assembly warning
         if (this.invalidAssemblyBlock && this.assembleButton.isMouseOver()) {
             this.drawHoveringText(
                     I18n.format("gui.riftedvessels.ship_helm.invalid_assembly_block"),
-                    mouseX,
-                    mouseY
+                    mouseX, mouseY
+            );
+        }
+
+        //cannot align when cruise controlling warning
+        if (this.cannotAlignCruiseControl && this.alignButton.isMouseOver()) {
+            this.drawHoveringText(
+                    I18n.format("gui.riftedvessels.ship_helm.cannot_align_cruise_controlling"),
+                    mouseX, mouseY
             );
         }
     }
@@ -210,6 +220,7 @@ public class ShipHelmGui extends GuiScreen {
             aligning = shipHelm.getAligning();
         }
         this.cruiseControlButton.enabled = assembled && helmAssembled && !aligning;
+        this.cannotAlignCruiseControl = cruiseControlling;
 
         String action = cruiseControlling ? "disable_cruise_control" : "enable_cruise_control";
         this.cruiseControlButton.displayString = I18n.format("gui.riftedvessels.ship_helm." + action);
