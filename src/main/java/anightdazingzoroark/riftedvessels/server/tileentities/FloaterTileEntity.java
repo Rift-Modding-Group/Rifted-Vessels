@@ -9,8 +9,8 @@ import org.jspecify.annotations.NonNull;
 import valkyrienwarfare.api.IPhysicsEntity;
 import valkyrienwarfare.api.RiftedValkyriumAPI;
 import valkyrienwarfare.api.TransformType;
-import valkyrienwarfare.api.forces.IShipForces;
-import valkyrienwarfare.api.forces.IShipForcesInducer;
+import valkyrienwarfare.api.IShipForces;
+import valkyrienwarfare.api.IShipForcesInducer;
 
 import java.util.Optional;
 

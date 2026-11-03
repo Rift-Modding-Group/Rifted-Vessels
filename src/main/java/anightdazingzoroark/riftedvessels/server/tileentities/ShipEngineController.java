@@ -8,8 +8,8 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3dc;
 import valkyrienwarfare.api.IPhysicsEntity;
 import valkyrienwarfare.api.IShipData;
-import valkyrienwarfare.api.forces.IShipForces;
-import valkyrienwarfare.api.forces.IShipForcesInducer;
+import valkyrienwarfare.api.IShipForces;
+import valkyrienwarfare.api.IShipForcesInducer;
 
 import java.util.Collections;
 import java.util.Map;
@@ -143,7 +143,7 @@ public class ShipEngineController implements IShipForcesInducer {
     }
 
     @Override
-    public int getForceApplicationPriority() {
-        return 100;
+    public boolean applyForceLate() {
+        return true;
     }
 }

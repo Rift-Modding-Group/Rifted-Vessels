@@ -14,8 +14,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3dc;
 import valkyrienwarfare.api.*;
-import valkyrienwarfare.api.forces.IShipForces;
-import valkyrienwarfare.api.forces.IShipForcesInducer;
+import valkyrienwarfare.api.IShipForces;
+import valkyrienwarfare.api.IShipForcesInducer;
 
 import java.util.Collections;
 import java.util.Map;
