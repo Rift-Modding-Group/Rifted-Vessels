@@ -54,8 +54,8 @@ public class ServerProxy {
         GameRegistry.registerTileEntity(AnchorTileEntity.class, new ResourceLocation(RiftedVessels.MOD_ID, "anchor"));
 
         //---custom block weights---
-        RiftedValkyriumAPI.setBlockMass(RiftedVesselsBlocks.SHIP_HELM, BlockMass.NONE);
-        RiftedValkyriumAPI.setBlockMass(RiftedVesselsBlocks.BALLOON, BlockMass.VERY_LIGHT);
+        RiftedValkyriumAPI.setBlockMass(RiftedVesselsBlocks.SHIP_HELM, BlockMass.NEGLIGIBLE);
+        RiftedValkyriumAPI.setBlockMass(RiftedVesselsBlocks.BALLOON, BlockMass.NEGLIGIBLE);
     }
 
     public void postInit(FMLPostInitializationEvent event) {}
