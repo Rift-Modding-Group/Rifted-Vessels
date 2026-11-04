@@ -34,13 +34,17 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
     private static final String CONTROL_VERTICAL_KEY = "RiftedVesselsShipHelmVertical";
 
     //reduce a specific amnt of velocity per second to make ship stopping smoother
-    private static final double RELEASED_VELOCITY_RETENTION_PER_SECOND = 0.5D;
-    private static final double RELEASED_FORWARD_VELOCITY_STOP_THRESHOLD = 0.01D;
+    private static final double RELEASED_VELOCITY_RETENTION_PER_SECOND = 0.001D;
+    private static final double LATERAL_VELOCITY_RETENTION_PER_SECOND = 0.001D;
+    private static final double RELEASED_HORIZONTAL_VELOCITY_STOP_THRESHOLD = 0.01D;
+    private static final double RELEASED_YAW_VELOCITY_STOP_THRESHOLD = 0.001D;
+    private static final double TURN_BRAKING_ACCELERATION_MULTIPLIER = 4D;
     private static final Vec3d WORLD_UP = new Vec3d(0D, 1D, 0D);
     private static final double MIN_STABILIZATION_ERROR = 1E-6D;
     //increase this value to make ship more stable
     private static final double STABILIZATION_RESPONSE = 90D;
     private static final double STABILIZATION_DAMPING_RATIO = 1D;
+    private static final double STABILIZATION_TORQUE_SCALE = 0.25D;
     private static final double MAXIMUM_STABILIZATION_TORQUE = 15_000_000D;
 
     private static final Map<World, Map<UUID, ShipHelmController>> CONTROLLERS_BY_WORLD = Collections.synchronizedMap(new WeakHashMap<>());
@@ -358,7 +362,8 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
 
         double mass = shipData.getMass();
         if (mass <= 0D) return;
-        this.applyStabilizingTorque(forces, shipData, mass);
+        Vec3d controlMoments = this.estimateWorldControlMoments(shipData, mass);
+        this.applyStabilizingTorque(forces, shipData, controlMoments);
 
         int forward = this.cruiseControlling ? 1 : this.forwardInput;
         int turn = this.turnInput;
@@ -385,13 +390,16 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
         if (this.slowingForwardMotion) {
             this.slowingForwardMotion = this.slowForwardMomentum(forces, shipData, mass);
         }
-        if (forward != 0) this.applyForwardForce(forces, shipData, mass, forward);
+        if (forward != 0) {
+            this.applyLateralGrip(forces, shipData, mass);
+            this.applyForwardForce(forces, shipData, mass, forward);
+        }
 
         //apply left/right rotation
         if (this.slowingTurningMotion) {
-            this.slowingTurningMotion = this.slowTurningMomentum(forces, shipData, mass);
+            this.slowingTurningMotion = this.slowTurningMomentum(forces, shipData, controlMoments.y);
         }
-        if (turn != 0) this.applyTurningTorque(forces, shipData, mass, turn);
+        if (turn != 0) this.applyTurningTorque(forces, shipData, controlMoments.y, turn);
     }
 
     private void resetPhysicsInputState() {
@@ -402,9 +410,11 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
     }
 
     //as a simple ship mod, a stabilizing torque is necessary to reduce headaches involving construction
-    private void applyStabilizingTorque(@NotNull IShipForces forces, @NotNull IShipData shipData, double mass) {
-        IPhysicsEntity ship = forces.getShip();
-        Vec3d shipUp = ship.rotateVector(WORLD_UP, TransformType.SUBSPACE_TO_GLOBAL).normalize();
+    private void applyStabilizingTorque(@NotNull IShipForces forces, @NotNull IShipData shipData, @NotNull Vec3d controlMoments) {
+        double timeStep = forces.getTimeStepSeconds();
+        if (timeStep <= 0D) return;
+
+        Vec3d shipUp = forces.getShip().rotateVector(WORLD_UP, TransformType.SUBSPACE_TO_GLOBAL).normalize();
         Vec3d correctionAxis = shipUp.crossProduct(WORLD_UP);
         double correctionAxisLengthSquared = correctionAxis.dotProduct(correctionAxis);
         Vec3d correctionAcceleration = new Vec3d(0D, 0D, 0D);
@@ -420,26 +430,16 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
                 WORLD_UP.scale(currentAngularVelocity.dotProduct(WORLD_UP))
         );
         double stabilizationDamping = 2D * Math.sqrt(STABILIZATION_RESPONSE) * STABILIZATION_DAMPING_RATIO;
-        Vec3d angularVelocityChange = correctionAcceleration.subtract(
-                levelingAngularVelocity.scale(stabilizationDamping)
-        );
-
-        Vec3d shipAngularVelocityChange = ship.rotateVector(
-                angularVelocityChange, TransformType.GLOBAL_TO_SUBSPACE
-        );
-        Vec3d momentsOfInertia = this.getMomentsOfInertia(shipData, mass);
-        Vec3d shipTorque = new Vec3d(
-                shipAngularVelocityChange.x * momentsOfInertia.x,
-                shipAngularVelocityChange.y * momentsOfInertia.y,
-                shipAngularVelocityChange.z * momentsOfInertia.z
-        );
-        Vec3d torque = ship.rotateVector(shipTorque, TransformType.SUBSPACE_TO_GLOBAL);
-        torque = torque.subtract(WORLD_UP.scale(torque.dotProduct(WORLD_UP)));
-
-        double torqueMagnitude = Math.sqrt(torque.dotProduct(torque));
-        if (torqueMagnitude > MAXIMUM_STABILIZATION_TORQUE) {
-            torque = torque.scale(MAXIMUM_STABILIZATION_TORQUE / torqueMagnitude);
-        }
+        //Implicit damping keeps the correction stable even when a simulation step takes longer.
+        double responseDenominator = 1D + stabilizationDamping * timeStep + STABILIZATION_RESPONSE * timeStep * timeStep;
+        Vec3d levelingAcceleration = correctionAcceleration.subtract(
+                levelingAngularVelocity.scale(stabilizationDamping + STABILIZATION_RESPONSE * timeStep)
+        ).scale(1D / responseDenominator);
+        //Use one conservative world-space scale so damping always opposes the rocking motion.
+        double levelingMoment = Math.min(controlMoments.x, controlMoments.z) * STABILIZATION_TORQUE_SCALE;
+        Vec3d torque = levelingAcceleration.scale(levelingMoment);
+        double magnitude = Math.sqrt(torque.dotProduct(torque));
+        if (magnitude > MAXIMUM_STABILIZATION_TORQUE) torque = torque.scale(MAXIMUM_STABILIZATION_TORQUE / magnitude);
         forces.applyWorldTorque(torque);
     }
 
@@ -449,67 +449,68 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
         if (timeStep <= 0D) return true;
 
         Vector3dc linearVelocity = shipData.getLinearVelocity();
-        Vec3d shipVelocity = forces.getShip().rotateVector(
-                new Vec3d(linearVelocity.x(), linearVelocity.y(), linearVelocity.z()),
-                TransformType.GLOBAL_TO_SUBSPACE
-        );
-        double forwardVelocity = shipVelocity.x * this.forwardX + shipVelocity.z * this.forwardZ;
-        if (Math.abs(forwardVelocity) <= RELEASED_FORWARD_VELOCITY_STOP_THRESHOLD) return false;
-
+        Vec3d horizontalVelocity = new Vec3d(linearVelocity.x(), 0D, linearVelocity.z());
+        boolean stopped = horizontalVelocity.lengthSquared()
+                <= RELEASED_HORIZONTAL_VELOCITY_STOP_THRESHOLD * RELEASED_HORIZONTAL_VELOCITY_STOP_THRESHOLD;
         double retainedVelocity = Math.pow(RELEASED_VELOCITY_RETENTION_PER_SECOND, timeStep);
-        double cancellingForce = mass * forwardVelocity * (retainedVelocity - 1D) / timeStep;
-        forces.applyShipForce(new Vec3d(
-                this.forwardX * cancellingForce,
-                0D,
-                this.forwardZ * cancellingForce
-        ));
-        return true;
+        if (stopped) retainedVelocity = 0D;
+        forces.applyWorldForce(horizontalVelocity.scale(mass * (retainedVelocity - 1D) / timeStep));
+        return !stopped;
+    }
+
+    //steering must redirect existing movement as well as rotate the ship
+    private void applyLateralGrip(@NotNull IShipForces forces, @NotNull IShipData shipData, double mass) {
+        double timeStep = forces.getTimeStepSeconds();
+        if (timeStep <= 0D) return;
+
+        Vec3d worldForward = this.getHorizontalForward(forces);
+        Vec3d lateralDirection = new Vec3d(-worldForward.z, 0D, worldForward.x);
+        Vector3dc linearVelocity = shipData.getLinearVelocity();
+        double lateralVelocity = linearVelocity.x() * lateralDirection.x + linearVelocity.z() * lateralDirection.z;
+        double retainedVelocity = Math.pow(LATERAL_VELOCITY_RETENTION_PER_SECOND, timeStep);
+        double cancellingForce = mass * lateralVelocity * (retainedVelocity - 1D) / timeStep;
+        forces.applyWorldForce(lateralDirection.scale(cancellingForce));
     }
 
     //releasing left/right buttons must cause an immediate slowdown
-    private boolean slowTurningMomentum(@NotNull IShipForces forces, @NotNull IShipData shipData, double mass) {
+    private boolean slowTurningMomentum(@NotNull IShipForces forces, @NotNull IShipData shipData, double yawMoment) {
         double timeStep = forces.getTimeStepSeconds();
         if (timeStep <= 0D) return true;
 
         Vector3dc angularVelocity = shipData.getAngularVelocity();
         double yawVelocity = angularVelocity.y();
-        double maximumDeceleration = Math.toRadians(RiftedVesselsConfig.shipHelmTurnAcceleration);
+        double maximumDeceleration = Math.toRadians(RiftedVesselsConfig.shipHelmTurnAcceleration)
+                * TURN_BRAKING_ACCELERATION_MULTIPLIER;
         if (maximumDeceleration <= 0D) return false;
 
-        double yawMomentOfInertia = this.getWorldYawMomentOfInertia(forces.getShip(), shipData, mass);
         double requiredDeceleration = -yawVelocity / timeStep;
         double appliedDeceleration = Math.clamp(requiredDeceleration, -maximumDeceleration, maximumDeceleration);
-        double cancellingTorque = yawMomentOfInertia * appliedDeceleration;
-        forces.applyWorldTorque(new Vec3d(0D, cancellingTorque, 0D));
-        return Math.abs(requiredDeceleration) > maximumDeceleration;
+        boolean stopped = Math.abs(yawVelocity) <= RELEASED_YAW_VELOCITY_STOP_THRESHOLD;
+        if (stopped) appliedDeceleration = requiredDeceleration;
+        forces.applyWorldTorque(new Vec3d(0D, yawMoment * appliedDeceleration, 0D));
+        return !stopped;
     }
 
     //apply forward/backward ship movement
     private void applyForwardForce(@NotNull IShipForces forces, @NotNull IShipData shipData, double mass, int forward) {
         double directionScale = forward < 0 ? 0.25D : 1D;
-        double forceX = forward * this.forwardX * directionScale; //slow down when going backwards
-        double forceZ = forward * this.forwardZ * directionScale; //same as above
+        Vec3d worldForward = this.getHorizontalForward(forces).scale(forward * directionScale);
         Vector3dc linearVelocity = shipData.getLinearVelocity();
-        Vec3d shipVelocity = forces.getShip().rotateVector(
-                new Vec3d(linearVelocity.x(), linearVelocity.y(), linearVelocity.z()),
-                TransformType.GLOBAL_TO_SUBSPACE
-        );
-        double velocityInRequestedDirection = shipVelocity.x * forceX + shipVelocity.z * forceZ;
+        double velocityInRequestedDirection = linearVelocity.x() * worldForward.x + linearVelocity.z() * worldForward.z;
         if (velocityInRequestedDirection >= RiftedVesselsConfig.shipHelmMaximumSpeed) return;
 
         double forceMagnitude = mass * RiftedVesselsConfig.shipHelmAcceleration;
-        forces.applyShipForce(new Vec3d(forceX * forceMagnitude, 0D, forceZ * forceMagnitude));
+        forces.applyWorldForce(worldForward.scale(forceMagnitude));
     }
 
     //apply left/right ship turning
-    private void applyTurningTorque(@NotNull IShipForces forces, @NotNull IShipData shipData, double mass, int turn) {
+    private void applyTurningTorque(@NotNull IShipForces forces, @NotNull IShipData shipData, double yawMoment, int turn) {
         Vector3dc angularVelocity = shipData.getAngularVelocity();
         double maximumTurnSpeedRadians = Math.toRadians(RiftedVesselsConfig.shipHelmMaximumTurnSpeed);
         if (angularVelocity.y() * turn >= maximumTurnSpeedRadians) return;
 
-        double yawMomentOfInertia = this.getWorldYawMomentOfInertia(forces.getShip(), shipData, mass);
-        double torque = yawMomentOfInertia * Math.toRadians(RiftedVesselsConfig.shipHelmTurnAcceleration) * turn;
-        forces.applyWorldTorque(new Vec3d(0D, torque, 0D));
+        double acceleration = Math.toRadians(RiftedVesselsConfig.shipHelmTurnAcceleration) * turn;
+        forces.applyWorldTorque(new Vec3d(0D, yawMoment * acceleration, 0D));
     }
 
     private void applyVerticalForce(@NotNull IShipForces forces, @NotNull IShipData shipData, double mass, int vertical) {
@@ -532,19 +533,18 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
         forces.applyWorldForce(new Vec3d(0D, force, 0D));
     }
 
-    private double getWorldYawMomentOfInertia(@NotNull IPhysicsEntity ship, @NotNull IShipData shipData, double mass) {
-        Vec3d worldUpInShip = ship.rotateVector(WORLD_UP, TransformType.GLOBAL_TO_SUBSPACE);
-        Vec3d momentsOfInertia = this.getMomentsOfInertia(shipData, mass);
-        return momentsOfInertia.x * worldUpInShip.x * worldUpInShip.x
-                + momentsOfInertia.y * worldUpInShip.y * worldUpInShip.y
-                + momentsOfInertia.z * worldUpInShip.z * worldUpInShip.z;
+    @NotNull
+    private Vec3d getHorizontalForward(@NotNull IShipForces forces) {
+        Vec3d forward = forces.getShip().rotateVector(new Vec3d(this.forwardX, 0D, this.forwardZ), TransformType.SUBSPACE_TO_GLOBAL);
+        return new Vec3d(forward.x, 0D, forward.z).normalize();
     }
 
-    private Vec3d getMomentsOfInertia(@NotNull IShipData shipData, double mass) {
-        AxisAlignedBB shipBounds = shipData.getShipBB();
-        double width = Math.max(shipBounds.maxX - shipBounds.minX, 1D);
-        double height = Math.max(shipBounds.maxY - shipBounds.minY, 1D);
-        double depth = Math.max(shipBounds.maxZ - shipBounds.minZ, 1D);
+    @NotNull
+    private Vec3d estimateWorldControlMoments(@NotNull IShipData shipData, double mass) {
+        AxisAlignedBB bounds = shipData.getShipBB();
+        double width = Math.max(bounds.maxX - bounds.minX, 1D);
+        double height = Math.max(bounds.maxY - bounds.minY, 1D);
+        double depth = Math.max(bounds.maxZ - bounds.minZ, 1D);
         return new Vec3d(
                 mass * (height * height + depth * depth) / 12D,
                 mass * (width * width + depth * depth) / 12D,
