@@ -133,7 +133,6 @@ public class ShipHelmTileEntity extends RiftTileEntity implements ITickable {
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isPlayerStandingOnShip(@NotNull EntityPlayerMP player) {
         if (this.world.isRemote || player.world != this.world) return false;
-        if (!RiftedValkyriumAPI.isPosInShipyard(this.world, player.getPosition().down())) return false;
 
         IPhysicsEntity ship = this.controller == null ? null : this.controller.getShip();
         IShipData helmShipData = ship == null ? null : ship.getShipData();

@@ -7,6 +7,7 @@ import anightdazingzoroark.riftedvessels.server.message.CruiseControlShipMessage
 import anightdazingzoroark.riftedvessels.server.tileentities.ShipHelmTileEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.MovementInput;
 import net.minecraft.util.math.BlockPos;
@@ -27,13 +28,27 @@ public class RiftedVesselsControls {
 
     @Nullable
     private static BlockPos controlledShipHelmPos;
+    @Nullable
+    private static Entity protectedMount;
 
     @SubscribeEvent
     public void onInputUpdate(@NotNull InputUpdateEvent event) {
+        Minecraft minecraft = Minecraft.getMinecraft();
+        if (event.getEntityPlayer() != minecraft.player) return;
+
+        MovementInput input = event.getMovementInput();
+
+        //release protected mount
+        if (protectedMount != null) {
+            if (event.getEntityPlayer().getRidingEntity() != protectedMount || !minecraft.gameSettings.keyBindSneak.isKeyDown()) {
+                protectedMount = null;
+            }
+            else input.sneak = false;
+        }
+
         if (controlledShipHelmPos == null) return;
 
         //forward and back
-        MovementInput input = event.getMovementInput();
         int forward;
         if (input.moveForward > 0f) forward = 1;
         else if (input.moveForward < 0f) forward = -1;
@@ -93,6 +108,14 @@ public class RiftedVesselsControls {
     }
 
     public static void setControllingShip(@Nullable BlockPos shipHelmPos) {
+        Minecraft minecraft = Minecraft.getMinecraft();
+        //fetch entity that the controlling player is riding
+        //will be needed to help out w dismount blocking on releasing helm
+        if (shipHelmPos == null && controlledShipHelmPos != null && minecraft.player != null
+                && minecraft.gameSettings.keyBindSneak.isKeyDown()
+        ) {
+            protectedMount = minecraft.player.getRidingEntity();
+        }
         controlledShipHelmPos = shipHelmPos;
     }
 }
