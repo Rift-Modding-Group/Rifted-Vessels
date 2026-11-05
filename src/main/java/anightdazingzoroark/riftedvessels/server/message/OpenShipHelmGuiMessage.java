@@ -8,6 +8,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class OpenShipHelmGuiMessage extends RiftLibMessage<OpenShipHelmGuiMessage> {
     private BlockPos shipHelmPos;
@@ -37,6 +39,7 @@ public class OpenShipHelmGuiMessage extends RiftLibMessage<OpenShipHelmGuiMessag
     @Override
     public void executeOnServer(MinecraftServer server, OpenShipHelmGuiMessage message, EntityPlayer player, MessageContext messageContext) {}
 
+    @SideOnly(Side.CLIENT)
     @Override
     public void executeOnClient(Minecraft minecraft, OpenShipHelmGuiMessage message, EntityPlayer player, MessageContext messageContext) {
         if (minecraft.world == null || message.shipHelmPos == null) return;

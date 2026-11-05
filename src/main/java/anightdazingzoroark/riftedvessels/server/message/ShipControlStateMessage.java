@@ -8,6 +8,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,6 +47,7 @@ public class ShipControlStateMessage extends RiftLibMessage<ShipControlStateMess
             @NotNull EntityPlayer player, @NotNull MessageContext context
     ) {}
 
+    @SideOnly(Side.CLIENT)
     @Override
     public void executeOnClient(
             @NotNull Minecraft minecraft, @NotNull ShipControlStateMessage message,
