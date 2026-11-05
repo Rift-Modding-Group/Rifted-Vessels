@@ -37,7 +37,9 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
     private static final double RELEASED_VELOCITY_RETENTION_PER_SECOND = 0.001D;
     private static final double LATERAL_VELOCITY_RETENTION_PER_SECOND = 0.001D;
     private static final double RELEASED_HORIZONTAL_VELOCITY_STOP_THRESHOLD = 0.01D;
-    private static final double RELEASED_YAW_VELOCITY_STOP_THRESHOLD = 0.001D;
+    private static final double RELEASED_YAW_VELOCITY_STOP_THRESHOLD = 1E-6D;
+    private static final double TURN_BRAKING_RESPONSE = 30D;
+    private static final double MAXIMUM_TURN_BRAKING_FRACTION = 0.45D;
     private static final double TURN_BRAKING_ACCELERATION_MULTIPLIER = 4D;
     private static final Vec3d WORLD_UP = new Vec3d(0D, 1D, 0D);
     private static final double MIN_STABILIZATION_ERROR = 1E-6D;
@@ -377,8 +379,10 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
         if (forward == 0 && this.lastPhysicsForwardInput != 0) this.slowingForwardMotion = true;
         else if (forward != 0) this.slowingForwardMotion = false;
 
-        //same for no turning input
-        if (turn == 0 && this.lastPhysicsTurnInput != 0) this.slowingTurningMotion = true;
+        //Keep yaw braking available while piloting, including after the initial stop.
+        if (turn == 0 && (this.lastPhysicsTurnInput != 0 || this.isBeingControlled() || this.cruiseControlling)) {
+            this.slowingTurningMotion = true;
+        }
         else if (turn != 0) this.slowingTurningMotion = false;
 
         //block further forces when there's no more input
@@ -479,16 +483,17 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
 
         Vector3dc angularVelocity = shipData.getAngularVelocity();
         double yawVelocity = angularVelocity.y();
+        if (Math.abs(yawVelocity) <= RELEASED_YAW_VELOCITY_STOP_THRESHOLD) return false;
         double maximumDeceleration = Math.toRadians(RiftedVesselsConfig.shipHelmTurnAcceleration)
                 * TURN_BRAKING_ACCELERATION_MULTIPLIER;
         if (maximumDeceleration <= 0D) return false;
 
-        double requiredDeceleration = -yawVelocity / timeStep;
+        //The estimated rotational resistance must not turn a small correction into another turn.
+        double brakingFraction = Math.min(-Math.expm1(-TURN_BRAKING_RESPONSE * timeStep), MAXIMUM_TURN_BRAKING_FRACTION);
+        double requiredDeceleration = -yawVelocity * brakingFraction / timeStep;
         double appliedDeceleration = Math.clamp(requiredDeceleration, -maximumDeceleration, maximumDeceleration);
-        boolean stopped = Math.abs(yawVelocity) <= RELEASED_YAW_VELOCITY_STOP_THRESHOLD;
-        if (stopped) appliedDeceleration = requiredDeceleration;
         forces.applyWorldTorque(new Vec3d(0D, yawMoment * appliedDeceleration, 0D));
-        return !stopped;
+        return true;
     }
 
     //apply forward/backward ship movement
