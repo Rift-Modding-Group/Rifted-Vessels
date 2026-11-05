@@ -81,6 +81,7 @@ public class ShipHelmBlock extends BlockHorizontal implements ITileEntityProvide
         else {
             //if interacting player is controller, stop controlling ship
             if (shipHelm.isControlledBy(serverPlayer)) {
+                playerIn.sendStatusMessage(new TextComponentTranslation("warning.riftedvessels.release_control"), true);
                 shipHelm.stopControlling();
             }
             //warning for when not assembled

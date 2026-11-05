@@ -1,4 +1,5 @@
 key.riftedvessels.cruise_control=Alternar crucero
+key.riftedvessels.ship_descend=Descenso del barco
 
 tile.riftedvessels.ship_helm.name=Timón
 tile.riftedvessels.ship_helm.tooltip=¡Usa esto para armar y controlar barcos!
@@ -42,6 +43,7 @@ gui.riftedvessels.ship_helm.enable_cruise_control=Activar crucero
 gui.riftedvessels.ship_helm.disable_cruise_control=Desactivar crucero
 
 warning.riftedvessels.controlling=Controlando barco...
+warning.riftedvessels.release_control=¡Timón soltado!
 warning.riftedvessels.not_assembled=¡Arma primero al barco antes de controlarlo!
 warning.riftedvessels.helm_occupied=¡Alguien más ya está controlando este barco!
 warning.riftedvessels.not_on_ship=¡Párate sobre este barco antes de controlarlo!

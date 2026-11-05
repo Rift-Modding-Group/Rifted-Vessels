@@ -77,6 +77,7 @@ public class RiftedVesselsControls {
         if (input.sneak) {
             input.sneak = false;
             setControllingShip(null);
+            minecraft.player.sendStatusMessage(new TextComponentTranslation("warning.riftedvessels.release_control"), true);
             ServerProxy.MESSAGE_WRAPPER.sendToServer(new ControlShipMessage(true));
         }
         //send controls to the ship
