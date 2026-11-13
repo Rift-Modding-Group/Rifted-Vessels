@@ -34,7 +34,29 @@ public class RiftedVesselsConfig {
             "minecraft:sandstone", "minecraft:gravel", "minecraft:ice", "minecraft:snow",
             "minecraft:snow_layer", "minecraft:lava", "minecraft:flowing_lava", "minecraft:grass_path",
             "minecraft:bedrock", "minecraft:end_portal_frame", "minecraft:end_portal",
-            "minecraft:end_gateway", "minecraft:portal", "minecraft:clay"
+            "minecraft:end_gateway", "minecraft:portal", "minecraft:clay",
+
+            "oe:seagrass", "oe:kelp", "oe:dulse", "oe:sea_pickle",
+            "oe:blue_coral_block", "oe:pink_coral_block", "oe:purple_coral_block",
+            "oe:red_coral_block", "oe:yellow_coral_block",
+            "oe:blue_coral_block_dead", "oe:pink_coral_block_dead", "oe:purple_coral_block_dead",
+            "oe:red_coral_block_dead", "oe:yellow_coral_block_dead",
+            "oe:blue_coral_fan", "oe:pink_coral_fan", "oe:purple_coral_fan",
+            "oe:red_coral_fan", "oe:yellow_coral_fan",
+            "oe:blue_coral_fan_dead", "oe:pink_coral_fan_dead", "oe:purple_coral_fan_dead",
+            "oe:red_coral_fan_dead", "oe:yellow_coral_fan_dead",
+            "oe:blue_coral", "oe:pink_coral", "oe:purple_coral",
+            "oe:red_coral", "oe:yellow_coral",
+            "oe:blue_coral_dead", "oe:pink_coral_dead", "oe:purple_coral_dead",
+            "oe:red_coral_dead", "oe:yellow_coral_dead",
+
+            "subaquatic:kelp", "subaquatic:seagrass", "subaquatic:sea_pickle",
+            "subaquatic:tube_coral_block", "subaquatic:brain_coral_block", "subaquatic:bubble_coral_block",
+            "subaquatic:fire_coral_block", "subaquatic:horn_coral_block",
+            "subaquatic:tube_coral_fan", "subaquatic:brain_coral_fan", "subaquatic:bubble_coral_fan",
+            "subaquatic:fire_coral_fan", "subaquatic:horn_coral_fan",
+            "subaquatic:tube_coral_fin", "subaquatic:brain_coral_fin", "subaquatic:bubble_coral_fin",
+            "subaquatic:fire_coral_fin", "subaquatic:horn_coral_fin"
     };
 
     //---engine---
