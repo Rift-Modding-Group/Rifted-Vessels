@@ -502,7 +502,8 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
         Vec3d worldForward = this.getHorizontalForward(forces).scale(forward * directionScale);
         Vector3dc linearVelocity = shipData.getLinearVelocity();
         double velocityInRequestedDirection = linearVelocity.x() * worldForward.x + linearVelocity.z() * worldForward.z;
-        if (velocityInRequestedDirection >= RiftedVesselsConfig.shipHelmMaximumSpeed) return;
+        double maximumSpeed = RiftedVesselsConfig.shipHelmMaximumSpeed + ShipEngineController.getSpeedBonus(forces.getShip());
+        if (velocityInRequestedDirection >= maximumSpeed) return;
 
         double forceMagnitude = mass * RiftedVesselsConfig.shipHelmAcceleration;
         forces.applyWorldForce(worldForward.scale(forceMagnitude));

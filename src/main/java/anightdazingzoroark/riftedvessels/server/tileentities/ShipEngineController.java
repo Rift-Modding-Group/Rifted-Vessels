@@ -36,7 +36,7 @@ public class ShipEngineController implements IShipForcesInducer {
     private volatile boolean attached;
     private volatile int burningEngineCount;
     private volatile double accelerationPerEngine;
-    private volatile double maximumSpeed;
+    private volatile double speedBonus;
 
     private ShipEngineController(@NotNull IPhysicsEntity ship) {
         this.world = ship.getWorld();
@@ -69,6 +69,14 @@ public class ShipEngineController implements IShipForcesInducer {
         if (worldControllers.isEmpty()) CONTROLLERS_BY_WORLD.remove(controller.world);
     }
 
+    public static synchronized double getSpeedBonus(@NotNull IPhysicsEntity ship) {
+        Map<UUID, ShipEngineController> worldControllers = CONTROLLERS_BY_WORLD.get(ship.getWorld());
+        if (worldControllers == null) return 0D;
+        ShipEngineController controller = worldControllers.get(ship.getShipData().getUuid());
+        if (controller == null || !controller.manages(ship)) return 0D;
+        return controller.speedBonus;
+    }
+
     //---internal methods---
     private void attachToShip(@NotNull IPhysicsEntity ship) {
         if (this.ship == ship && this.attached) return;
@@ -81,7 +89,7 @@ public class ShipEngineController implements IShipForcesInducer {
     private void detachFromShip() {
         this.attached = false;
         this.burningEngineCount = 0;
-        this.maximumSpeed = 0D;
+        this.speedBonus = 0D;
         IPhysicsEntity previousShip = this.ship;
         this.ship = null;
         if (previousShip != null) previousShip.removeForceInducer(this);
@@ -103,11 +111,10 @@ public class ShipEngineController implements IShipForcesInducer {
         }
 
         this.accelerationPerEngine = RiftedVesselsConfig.shipEngineAcceleration;
-        double speedBonus = Math.min(
+        this.speedBonus = Math.min(
                 activeEngines * RiftedVesselsConfig.shipEngineSpeedBonus,
                 RiftedVesselsConfig.shipEngineMaximumSpeedBonus
         );
-        this.maximumSpeed = RiftedVesselsConfig.shipHelmMaximumSpeed + speedBonus;
         this.burningEngineCount = activeEngines;
     }
 
@@ -122,7 +129,7 @@ public class ShipEngineController implements IShipForcesInducer {
 
         double mass = shipData.getMass();
         double configuredAcceleration = this.accelerationPerEngine;
-        double configuredMaximumSpeed = this.maximumSpeed;
+        double configuredMaximumSpeed = RiftedVesselsConfig.shipHelmMaximumSpeed + this.speedBonus;
         int activeEngines = this.burningEngineCount;
         if (mass <= 0D || activeEngines <= 0 || configuredAcceleration <= 0D || configuredMaximumSpeed <= 0D) {
             return;
