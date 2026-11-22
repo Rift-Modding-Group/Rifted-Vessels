@@ -38,10 +38,7 @@ public class RiftedVesselsHWYLA implements IWailaPlugin {
 
                         NBTTagCompound fuelTag = tag.getCompoundTag("RiftedVesselsFuel");
                         ItemStack fuel = new ItemStack(fuelTag);
-                        if (fuel.isEmpty()) {
-                            tooltip.add(SpecialChars.getRenderString("waila.stack", "2"));
-                        }
-                        else {
+                        if (!fuel.isEmpty()) {
                             tooltip.add(SpecialChars.getRenderString(
                                     "waila.stack", "1", fuel.getItem().getRegistryName().toString(),
                                     Integer.toString(fuel.getCount()), Integer.toString(fuel.getItemDamage()),
