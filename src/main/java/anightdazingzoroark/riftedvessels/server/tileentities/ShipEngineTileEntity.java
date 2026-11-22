@@ -96,10 +96,18 @@ public class ShipEngineTileEntity extends RiftTileEntityContainer implements ITi
         return super.canExtractItem(index, stack, direction) && !isFuel(stack);
     }
 
-    public ItemStack insertFuel(@NotNull ItemStack stack) {
+    @NotNull
+    public ItemStack insertFuel(@NotNull ItemStack stack, boolean insertStack) {
         if (!isFuel(stack)) return stack;
-        ItemStack remainder = this.getInventory("FuelInventory").insertItem(0, stack, false);
-        if (remainder.getCount() != stack.getCount()) this.updateServerData();
+        ItemStack fuelToInsert = stack.copy();
+        if (!insertStack) fuelToInsert.setCount(1);
+        ItemStack rejectedFuel = this.getInventory("FuelInventory").insertItem(0, fuelToInsert, false);
+        int insertedCount = fuelToInsert.getCount() - rejectedFuel.getCount();
+        if (insertedCount == 0) return stack;
+
+        ItemStack remainder = stack.copy();
+        remainder.shrink(insertedCount);
+        this.updateServerData();
         return remainder;
     }
 

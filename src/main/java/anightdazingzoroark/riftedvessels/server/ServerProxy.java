@@ -37,6 +37,7 @@ public class ServerProxy {
         MinecraftForge.EVENT_BUS.register(new RiftedVesselsBlocks());
         MinecraftForge.EVENT_BUS.register(new RiftedVesselsItems());
         MinecraftForge.EVENT_BUS.register(new RiftedVesselsSounds());
+        MinecraftForge.EVENT_BUS.register(new ServerEvents());
     }
 
     public void init(FMLInitializationEvent event) {

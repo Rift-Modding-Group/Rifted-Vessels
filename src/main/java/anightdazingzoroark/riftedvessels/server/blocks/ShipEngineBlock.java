@@ -52,13 +52,13 @@ public class ShipEngineBlock extends BlockHorizontal implements ITileEntityProvi
 
         //insert fuel
         if (!heldItem.isEmpty() && ShipEngineTileEntity.isFuel(heldItem)) {
-            ItemStack remainingFuel = shipEngine.insertFuel(heldItem);
+            ItemStack remainingFuel = shipEngine.insertFuel(heldItem, serverPlayer.isSneaking());
             if (remainingFuel.getCount() != heldItem.getCount()) {
                 serverPlayer.setHeldItem(hand, remainingFuel);
                 serverPlayer.inventoryContainer.detectAndSendChanges();
                 worldIn.playSound(
                         null, pos.getX(), pos.getY(), pos.getZ(),
-                        RiftedVesselsSounds.SHIP_ENGINE_IGNITE, SoundCategory.BLOCKS, 1F, 1F
+                        RiftedVesselsSounds.SHIP_ENGINE_IGNITE, SoundCategory.BLOCKS, 1f, 1f
                 );
             }
         }
