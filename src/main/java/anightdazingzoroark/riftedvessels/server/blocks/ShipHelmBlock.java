@@ -1,5 +1,6 @@
 package anightdazingzoroark.riftedvessels.server.blocks;
 
+import anightdazingzoroark.riftedvessels.RiftedVesselsConfig;
 import anightdazingzoroark.riftedvessels.server.ServerProxy;
 import anightdazingzoroark.riftedvessels.server.message.OpenShipHelmGuiMessage;
 import anightdazingzoroark.riftedvessels.server.tileentities.ShipHelmTileEntity;
@@ -52,7 +53,7 @@ public class ShipHelmBlock extends BlockHorizontal implements ITileEntityProvide
 
     @Override
     public float getBlockHardness(@NotNull IBlockState blockState, @NotNull World worldIn, @NotNull BlockPos pos) {
-        if (isAssembled(worldIn, pos)) return -1F;
+        if (isAssembled(worldIn, pos) && !RiftedVesselsConfig.shipHelmCanBreakOnShip) return -1f;
         return super.getBlockHardness(blockState, worldIn, pos);
     }
 
@@ -61,7 +62,7 @@ public class ShipHelmBlock extends BlockHorizontal implements ITileEntityProvide
             @NotNull IBlockState state, @NotNull World worldIn, @NotNull BlockPos pos,
             @NotNull EntityPlayer player, boolean willHarvest
     ) {
-        if (isAssembled(worldIn, pos)) return false;
+        if (isAssembled(worldIn, pos) && !RiftedVesselsConfig.shipHelmCanBreakOnShip) return false;
         return super.removedByPlayer(state, worldIn, pos, player, willHarvest);
     }
 

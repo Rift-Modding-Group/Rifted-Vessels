@@ -6,6 +6,10 @@ import net.minecraftforge.common.config.Config;
 @Config.RequiresMcRestart
 public class RiftedVesselsConfig {
     //---helm---
+    @Config.Name("Ship Helm Breakable On Ships")
+    @Config.Comment("Allow Ship Helms to be broken when on an active ship.")
+    public static boolean shipHelmCanBreakOnShip = false;
+
     @Config.Name("Ship Helm Acceleration")
     @Config.Comment("Horizontal acceleration in blocks per second squared while piloting with a Ship Helm.")
     @Config.RangeDouble(min = 0.1D, max = 100D)
