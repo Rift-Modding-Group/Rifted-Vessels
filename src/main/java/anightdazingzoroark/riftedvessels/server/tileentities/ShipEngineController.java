@@ -107,7 +107,7 @@ public class ShipEngineController implements IShipForcesInducer {
 
         int activeEngines = 0;
         for (ShipEngineTileEntity engine : this.engines) {
-            if (!engine.isInvalid() && engine.isBurning()) activeEngines++;
+            if (!engine.isInvalid() && engine.isBurning() && !this.world.isBlockPowered(engine.getPos())) activeEngines++;
         }
 
         this.accelerationPerEngine = RiftedVesselsConfig.shipEngineAcceleration;
