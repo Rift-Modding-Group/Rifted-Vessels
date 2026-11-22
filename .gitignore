@@ -2,6 +2,7 @@
 **/build/
 !src/**/build/
 run/
+wiki-renders/
 out/
 AGENTS.md
 
