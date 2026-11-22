@@ -34,6 +34,7 @@ public class ShipEngineBlock extends BlockHorizontal implements ITileEntityProvi
     public ShipEngineBlock() {
         super(Material.ROCK);
         this.setSoundType(SoundType.STONE);
+        this.setHardness(3.5f);
         this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(BURNING, false));
     }
 

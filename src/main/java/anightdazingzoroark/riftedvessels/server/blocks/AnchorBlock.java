@@ -52,6 +52,8 @@ public class AnchorBlock extends BlockHorizontal implements ITileEntityProvider 
     public AnchorBlock() {
         super(Material.ANVIL);
         this.setSoundType(SoundType.ANVIL);
+        this.setHardness(5f);
+        this.setResistance(10f);
     }
 
     //---collisions---

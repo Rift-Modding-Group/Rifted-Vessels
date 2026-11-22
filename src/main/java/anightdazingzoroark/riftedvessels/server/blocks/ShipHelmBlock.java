@@ -40,6 +40,8 @@ public class ShipHelmBlock extends BlockHorizontal implements ITileEntityProvide
     public ShipHelmBlock() {
         super(Material.WOOD);
         this.setSoundType(SoundType.WOOD);
+        this.setHardness(2f);
+        this.setResistance(5f);
         this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH));
     }
 
