@@ -55,7 +55,7 @@ public class ShipHelmTileEntity extends RiftTileEntity implements ITickable {
             if (this.assemblyRequested && this.world instanceof WorldServer serverWorld) {
                 this.assemblyRequested = false;
                 RiftedValkyriumAPI.createNewShip(
-                        serverWorld, this.pos, new ShipBuildOptions().setShipBlockBlacklist(RiftedVesselsUtil.getBlockBlacklist()).setPhysicsEnabled()
+                        serverWorld, this.pos, new ShipBuildOptions().setShipBlockBlacklist(RiftedVesselsUtil.getBlockBlacklist()).setPhysicsEnabled(true)
                 );
             }
         }

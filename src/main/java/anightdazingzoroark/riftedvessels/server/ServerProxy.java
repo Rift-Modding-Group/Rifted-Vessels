@@ -58,6 +58,7 @@ public class ServerProxy {
         //---custom block weights---
         RiftedValkyriumAPI.setBlockMass(RiftedVesselsBlocks.SHIP_HELM, BlockMass.NEGLIGIBLE);
         RiftedValkyriumAPI.setBlockMass(RiftedVesselsBlocks.BALLOON, BlockMass.NEGLIGIBLE);
+        RiftedValkyriumAPI.setBlockMass(RiftedVesselsBlocks.SUBMARINE_TANK, BlockMass.NEGLIGIBLE);
     }
 
     public void postInit(FMLPostInitializationEvent event) {}
