@@ -37,6 +37,7 @@ public class FloaterTileEntity extends TileEntity implements IShipForcesInducer,
     @Override
     public void applyForces(@NonNull IShipForces forces) {
         if (this.ship != forces.getShip() || this.isInvalid()) return;
+        if (ShipLiftController.getLiftMode(forces.getShip()) != ShipLiftController.LiftMode.FLOATER) return;
 
         int signal = this.redstoneSignal;
         if (signal >= 15) return;

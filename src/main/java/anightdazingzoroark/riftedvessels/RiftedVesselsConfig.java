@@ -113,4 +113,24 @@ public class RiftedVesselsConfig {
     @Config.Comment("Maximum downward speed in blocks per second while controlling a balloon ship.")
     @Config.RangeDouble(min = 0.1D, max = 100D)
     public static double shipBalloonMaximumDescentSpeed = 4D;
+    //---submarine tank---
+    @Config.Name("Minimum Submarine Tanks For Vertical Movement")
+    @Config.Comment("Number of Submarine Tanks a ship needs for underwater vertical movement. Balloons take priority.")
+    @Config.RangeInt(min = 1)
+    public static int shipSubmarineTankMinimumCount = 4;
+
+    @Config.Name("Ship Submarine Tank Vertical Acceleration")
+    @Config.Comment("Vertical acceleration in blocks per second squared while controlling a submarine.")
+    @Config.RangeDouble(min = 0.1D, max = 100D)
+    public static double shipSubmarineTankVerticalAcceleration = 3D;
+
+    @Config.Name("Ship Submarine Tank Maximum Ascent Speed")
+    @Config.Comment("Maximum underwater upward speed in blocks per second while controlling a submarine.")
+    @Config.RangeDouble(min = 0.1D, max = 100D)
+    public static double shipSubmarineTankMaximumAscentSpeed = 4D;
+
+    @Config.Name("Ship Submarine Tank Maximum Descent Speed")
+    @Config.Comment("Maximum underwater downward speed in blocks per second while controlling a submarine.")
+    @Config.RangeDouble(min = 0.1D, max = 100D)
+    public static double shipSubmarineTankMaximumDescentSpeed = 4D;
 }

@@ -77,7 +77,6 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
     //volatility for preventing force calculations from retaining an old value
     private volatile int forwardX;
     private volatile int forwardZ;
-    private volatile int balloonCount;
 
     private int lastPhysicsForwardInput;
     private int lastPhysicsTurnInput;
@@ -171,8 +170,6 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
         long serverTick = this.world.getTotalWorldTime();
         if (this.lastServerTick == serverTick) return;
         this.lastServerTick = serverTick;
-
-        this.balloonCount = BalloonController.getBalloonCount(this.ship);
 
         boolean shipAligning = this.ship.isShipAligningToGrid();
         if (shipAligning != this.aligning) {
@@ -371,8 +368,9 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
         int turn = this.turnInput;
         int vertical = this.verticalInput;
 
-        if (this.balloonCount >= RiftedVesselsConfig.shipBalloonMinimumCount) {
-            this.applyVerticalForce(forces, shipData, mass, vertical);
+        ShipLiftController.LiftMode liftMode = ShipLiftController.getLiftMode(forceShip);
+        if (liftMode != ShipLiftController.LiftMode.FLOATER) {
+            this.applyVerticalForce(forces, shipData, mass, vertical, liftMode);
         }
 
         //no forward/backward input means slowing down to smoothen travel
@@ -519,24 +517,40 @@ public class ShipHelmController implements IShipForcesInducer, IShipMaintenanceP
         forces.applyWorldTorque(new Vec3d(0D, yawMoment * acceleration, 0D));
     }
 
-    private void applyVerticalForce(@NotNull IShipForces forces, @NotNull IShipData shipData, double mass, int vertical) {
+    private void applyVerticalForce(@NotNull IShipForces forces, @NotNull IShipData shipData, double mass, int vertical, @NotNull ShipLiftController.LiftMode liftMode) {
         double timeStep = forces.getTimeStepSeconds();
-        if (timeStep <= 0D || RiftedVesselsConfig.shipBalloonVerticalAcceleration <= 0D) return;
+        boolean submarine = liftMode == ShipLiftController.LiftMode.SUBMARINE;
+        double acceleration;
+        double ascentSpeed;
+        double descentSpeed;
+        if (submarine) {
+            acceleration = RiftedVesselsConfig.shipSubmarineTankVerticalAcceleration;
+            ascentSpeed = RiftedVesselsConfig.shipSubmarineTankMaximumAscentSpeed;
+            descentSpeed = RiftedVesselsConfig.shipSubmarineTankMaximumDescentSpeed;
+        }
+        else {
+            acceleration = RiftedVesselsConfig.shipBalloonVerticalAcceleration;
+            ascentSpeed = RiftedVesselsConfig.shipBalloonMaximumAscentSpeed;
+            descentSpeed = RiftedVesselsConfig.shipBalloonMaximumDescentSpeed;
+        }
+        if (timeStep <= 0D || acceleration <= 0D) return;
 
         double targetVelocity;
-        if (vertical > 0) targetVelocity = RiftedVesselsConfig.shipBalloonMaximumAscentSpeed;
-        else if (vertical < 0) targetVelocity = -RiftedVesselsConfig.shipBalloonMaximumDescentSpeed;
+        if (vertical > 0) targetVelocity = ascentSpeed;
+        else if (vertical < 0) targetVelocity = -descentSpeed;
         else targetVelocity = 0D;
 
         double currentVelocity = shipData.getLinearVelocity().y();
         double desiredAcceleration = Math.clamp(
                 (targetVelocity - currentVelocity) / timeStep,
-                -RiftedVesselsConfig.shipBalloonVerticalAcceleration,
-                RiftedVesselsConfig.shipBalloonVerticalAcceleration
+                -acceleration,
+                acceleration
         );
         double force = mass * (desiredAcceleration - RiftedValkyriumAPI.getWorldGravity().y());
-        if (force <= 0D) return;
-        forces.applyWorldForce(new Vec3d(0D, force, 0D));
+        if (submarine) {
+            SubmarineTankTileEntity.applyVerticalForce(forces, force);
+        }
+        else if (force > 0D) forces.applyWorldForce(new Vec3d(0D, force, 0D));
     }
 
     @NotNull

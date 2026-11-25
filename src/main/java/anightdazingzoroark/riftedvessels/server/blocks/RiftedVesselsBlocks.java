@@ -18,6 +18,7 @@ public class RiftedVesselsBlocks {
     public static Block FLOATER;
     public static Block BALLOON;
     public static Block ANCHOR;
+    public static Block SUBMARINE_TANK;
 
     public static void registerBlocks() {
         SHIP_HELM = registerBlock(new ShipHelmBlock(), "ship_helm", true, false, true);
@@ -25,6 +26,7 @@ public class RiftedVesselsBlocks {
         FLOATER = registerBlock(new FloaterBlock(), "floater", true, true, true);
         BALLOON = registerBlock(new BalloonBlock(), "balloon", true, true, true);
         ANCHOR = registerBlock(new AnchorBlock(), "anchor", true, false, true);
+        SUBMARINE_TANK = registerBlock(new SubmarineTankBlock(), "submarine_tank", true, true, true);
 
         Blocks.FIRE.setFireInfo(BALLOON, 30, 60);
     }

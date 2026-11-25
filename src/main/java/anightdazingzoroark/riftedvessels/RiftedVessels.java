@@ -19,7 +19,7 @@ import org.apache.logging.log4j.Logger;
         modid = RiftedVessels.MOD_ID,
         name = RiftedVessels.MOD_NAME,
         version = RiftedVessels.VERSION,
-        dependencies = "required-after:riftlib@[2.1.0,);" + ";required-after:valkyrienskies@[2.2.0,)"
+        dependencies = "required-after:riftlib@[2.1.0,);" + ";required-after:valkyrienskies@[2.3.0,)"
 )
 public class RiftedVessels {
     public static final String MOD_ID = "riftedvessels";

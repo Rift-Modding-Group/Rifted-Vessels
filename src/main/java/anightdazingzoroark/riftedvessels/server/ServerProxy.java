@@ -52,6 +52,7 @@ public class ServerProxy {
         );
         GameRegistry.registerTileEntity(FloaterTileEntity.class, new ResourceLocation(RiftedVessels.MOD_ID, "floater"));
         GameRegistry.registerTileEntity(BalloonTileEntity.class, new ResourceLocation(RiftedVessels.MOD_ID, "balloon"));
+        GameRegistry.registerTileEntity(SubmarineTankTileEntity.class, new ResourceLocation(RiftedVessels.MOD_ID, "submarine_tank"));
         GameRegistry.registerTileEntity(AnchorTileEntity.class, new ResourceLocation(RiftedVessels.MOD_ID, "anchor"));
 
         //---custom block weights---
